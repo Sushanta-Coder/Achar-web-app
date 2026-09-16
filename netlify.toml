@@ -6,7 +6,7 @@
 # SPA fallback — all routes are handled by React Router on the client.
 [[redirects]]
   from   = "/api/*"
-  to     = "https://api.acharghar.com.np/api/:splat"
+  to     = "https://achar-ghar-api.onrender.com/api/:splat"
   status = 200
   force  = true
 
@@ -18,13 +18,13 @@
 # Proxy sitemap and robots to the API so crawlers see live data.
 [[redirects]]
   from   = "/sitemap.xml"
-  to     = "https://api.acharghar.com.np/sitemap.xml"
+  to     = "https://achar-ghar-api.onrender.com/sitemap.xml"
   status = 200
   force  = true
 
 [[redirects]]
   from   = "/robots.txt"
-  to     = "https://api.acharghar.com.np/robots.txt"
+  to     = "https://achar-ghar-api.onrender.com/robots.txt"
   status = 200
   force  = true
 

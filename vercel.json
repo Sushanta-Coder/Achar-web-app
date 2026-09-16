@@ -1,8 +1,8 @@
 {
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://api.acharghar.com.np/api/$1" },
-    { "source": "/sitemap.xml", "destination": "https://api.acharghar.com.np/sitemap.xml" },
-    { "source": "/robots.txt",  "destination": "https://api.acharghar.com.np/robots.txt"  }
+    { "source": "/api/(.*)", "destination": "https://achar-ghar-api.onrender.com/api/$1" },
+    { "source": "/sitemap.xml", "destination": "https://achar-ghar-api.onrender.com/sitemap.xml" },
+    { "source": "/robots.txt",  "destination": "https://achar-ghar-api.onrender.com/robots.txt"  }
   ],
   "headers": [
     {
