@@ -1,0 +1,29 @@
+{
+  "name": "achar-ghar",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Achar Ghar - production-ready MERN e-commerce platform for a Nepal-based pickle (achar) company",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,client -c magenta,cyan \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "npm run dev --workspace server",
+    "dev:client": "npm run dev --workspace client",
+    "build": "npm run build --workspace client",
+    "start": "npm run start --workspace server",
+    "seed": "npm run seed --workspace server",
+    "test": "npm run test --workspace server",
+    "lint": "npm run lint --workspace server && npm run lint --workspace client",
+    "format": "prettier --write \"**/*.{js,jsx,json,css,md}\""
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5",
+    "prettier": "^3.9.6"
+  }
+}

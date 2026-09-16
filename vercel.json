@@ -1,0 +1,17 @@
+{
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://api.acharghar.com.np/api/$1" },
+    { "source": "/sitemap.xml", "destination": "https://api.acharghar.com.np/sitemap.xml" },
+    { "source": "/robots.txt",  "destination": "https://api.acharghar.com.np/robots.txt"  }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options",        "value": "DENY"    },
+        { "key": "Referrer-Policy",        "value": "strict-origin-when-cross-origin" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "Achar Ghar — Nepali pickles",
+  "short_name": "Achar Ghar",
+  "description": "Handmade Nepali achar, delivered across Nepal.",
+  "lang": "en",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#faf7f2",
+  "theme_color": "#8f1d14",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    { "name": "Shop", "url": "/shop" },
+    { "name": "My orders", "url": "/orders" },
+    { "name": "Track an order", "url": "/track-order" }
+  ]
+}

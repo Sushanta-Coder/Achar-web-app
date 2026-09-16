@@ -1,0 +1,383 @@
+@import 'tailwindcss';
+
+/**
+ * Design tokens.
+ *
+ * Tailwind v4 is CSS-first: `@theme` values become both CSS custom properties and
+ * utility classes, so `--color-brand-600` is usable as `bg-brand-600` with no JS
+ * config file. The palette is drawn from the product itself - the deep red of a
+ * chilli-and-mustard-oil achar, mustard yellow, and the cream of a ceramic bharan -
+ * rather than a generic e-commerce blue.
+ */
+@theme {
+  /* Pickle red: the primary brand colour, used for actions and the header. */
+  --color-brand-50: #fdf3f2;
+  --color-brand-100: #fbe3e0;
+  --color-brand-200: #f7cbc6;
+  --color-brand-300: #efa8a0;
+  --color-brand-400: #e37669;
+  --color-brand-500: #d14f3f;
+  --color-brand-600: #b93325;
+  --color-brand-700: #8f1d14;
+  --color-brand-800: #771c15;
+  --color-brand-900: #641c17;
+  --color-brand-950: #360a07;
+
+  /* Mustard - accents, badges, star ratings. */
+  --color-mustard-50: #fdfaed;
+  --color-mustard-100: #faf2cd;
+  --color-mustard-200: #f5e397;
+  --color-mustard-300: #eecf61;
+  --color-mustard-400: #e6c34a;
+  --color-mustard-500: #dca722;
+  --color-mustard-600: #c2851a;
+  --color-mustard-700: #a16318;
+  --color-mustard-800: #834e1a;
+  --color-mustard-900: #6f4119;
+
+  /* Herb green - "in stock", vegetarian, success. */
+  --color-leaf-50: #f2f8f1;
+  --color-leaf-100: #e0efdd;
+  --color-leaf-200: #c3dfbe;
+  --color-leaf-300: #99c692;
+  --color-leaf-400: #6ba762;
+  --color-leaf-500: #4a8a42;
+  --color-leaf-600: #386e32;
+  --color-leaf-700: #2e582a;
+  --color-leaf-800: #274724;
+  --color-leaf-900: #213b1f;
+
+  /* Warm neutrals. `cream` is the page background; `ink` is body text. */
+  --color-cream-50: #fdfcfa;
+  --color-cream-100: #faf7f2;
+  --color-cream-200: #f2ece2;
+  --color-cream-300: #e5dbcb;
+  --color-cream-400: #d3c4ad;
+
+  --color-ink-400: #7d7469;
+  --color-ink-500: #5f584f;
+  --color-ink-600: #4a443d;
+  --color-ink-700: #3a352f;
+  --color-ink-800: #2b2724;
+  --color-ink-900: #1c1917;
+
+  /* Devanagari needs a font stack that actually has the glyphs; Noto is the safe
+     fallback on Windows/Android/iOS alike. Loaded from the system, not the network -
+     a webfont for a secondary language is not worth the render delay. */
+  --font-sans: 'Inter var', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Fraunces', 'Georgia', 'Noto Serif Devanagari', serif;
+  --font-np: 'Noto Sans Devanagari', 'Mangal', system-ui, sans-serif;
+
+  --radius-card: 0.875rem;
+
+  /* Soft, warm shadows - a neutral grey shadow reads as dirty over cream. */
+  --shadow-card: 0 1px 2px rgb(54 10 7 / 0.04), 0 4px 16px -4px rgb(54 10 7 / 0.08);
+  --shadow-card-hover: 0 2px 4px rgb(54 10 7 / 0.06), 0 12px 28px -8px rgb(54 10 7 / 0.16);
+  --shadow-pop: 0 8px 40px -8px rgb(54 10 7 / 0.22);
+
+  --animate-fade-up: fade-up 0.28s ease-out;
+  --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-shimmer: shimmer 1.4s linear infinite;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* --- Base ------------------------------------------------------------------- */
+
+@layer base {
+  /**
+   * `scroll-padding-top` keeps in-page anchors clear of the sticky header, and
+   * `prefers-reduced-motion` is honoured globally rather than per-component - the
+   * brief asked for restrained motion, and some visitors ask for none.
+   */
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    @apply bg-cream-100 text-ink-700 font-sans antialiased;
+    /* Nepali product names sit inline with English copy; without this the browser
+       may pick a font with no Devanagari coverage and render tofu boxes. */
+    font-feature-settings: 'cv02', 'cv03', 'cv04';
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply text-ink-900 font-display font-semibold tracking-tight;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /**
+   * A visible focus ring on keyboard navigation only. Removing focus styles outright
+   * is the single most common accessibility regression in an e-commerce template, so
+   * this is set once at the base layer instead of per component.
+   */
+  :focus-visible {
+    @apply outline-brand-600 outline-2 outline-offset-2;
+  }
+
+  /* Let the browser paint form controls in brand colours rather than system blue. */
+  :root {
+    accent-color: var(--color-brand-600);
+    color-scheme: light;
+  }
+
+  /* Chrome/Safari autofill paints inputs pale blue, which breaks the cream palette. */
+  input:-webkit-autofill,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--color-ink-800);
+    box-shadow: 0 0 0 100px var(--color-cream-50) inset;
+  }
+
+  /* Hide the spinner on number inputs - quantity is changed with the +/- buttons. */
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+  input[type='number'] {
+    appearance: textfield;
+  }
+}
+
+/* --- Buttons ---------------------------------------------------------------- */
+
+/**
+ * Registered with `@utility` rather than as plain classes in `@layer components`,
+ * because Tailwind v4 will only let `@apply` reference a *registered* utility - a bare
+ * `.btn` in a component layer cannot be applied by `.btn-primary`. Declaration order
+ * matters here: everything lands in the utilities layer at equal specificity, so the
+ * size modifiers are declared last in order to win over `btn`'s own padding and height.
+ */
+
+/* `min-h-11` is the ~44px touch target; most traffic is mobile. */
+@utility btn {
+  @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg px-5
+    text-sm font-semibold whitespace-nowrap transition
+    disabled:pointer-events-none disabled:opacity-55;
+}
+@utility btn-primary {
+  @apply btn bg-brand-700 text-white shadow-sm hover:bg-brand-800 active:bg-brand-900;
+}
+@utility btn-secondary {
+  @apply btn bg-ink-800 text-white hover:bg-ink-900;
+}
+@utility btn-outline {
+  @apply btn border-cream-400 text-ink-800 hover:border-brand-600 hover:text-brand-700 border bg-white;
+}
+@utility btn-ghost {
+  @apply btn text-ink-600 hover:bg-cream-200 hover:text-ink-900 bg-transparent;
+}
+@utility btn-danger {
+  @apply btn bg-red-600 text-white hover:bg-red-700;
+}
+@utility btn-sm {
+  @apply min-h-9 rounded-md px-3 text-[0.8125rem];
+}
+@utility btn-lg {
+  @apply min-h-13 px-7 text-base;
+}
+
+/* --- Components ------------------------------------------------------------- */
+
+/**
+ * These are the handful of patterns repeated on nearly every page. Anything used
+ * fewer than three times stays as inline utilities in its component - a class here
+ * is a commitment to keeping it consistent everywhere.
+ */
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .card {
+    @apply border-cream-300 rounded-card border bg-white shadow-card;
+  }
+
+  /* Inputs. The `invalid` variants are driven by aria-invalid, which React Hook Form
+     sets from the resolver - so the visual error state and the state a screen reader
+     announces can never disagree. */
+  .field-label {
+    @apply text-ink-700 mb-1.5 block text-sm font-medium;
+  }
+  .field-input {
+    @apply border-cream-400 text-ink-900 placeholder:text-ink-400 min-h-11 w-full rounded-lg border
+      bg-white px-3.5 text-[0.9375rem] transition
+      focus:border-brand-600 focus:ring-2 focus:ring-brand-600/15 focus:outline-none
+      disabled:bg-cream-200 disabled:text-ink-500
+      aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-500/15;
+  }
+  .field-error {
+    @apply mt-1.5 flex items-start gap-1 text-[0.8125rem] font-medium text-red-700;
+  }
+  .field-hint {
+    @apply text-ink-500 mt-1.5 text-[0.8125rem];
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+  }
+
+  /* Admin table. Sticky header so a long order list keeps its column labels. */
+  .admin-table {
+    @apply w-full border-collapse text-left text-sm;
+  }
+  .admin-table thead th {
+    @apply text-ink-500 bg-cream-100 border-cream-300 sticky top-0 z-10 border-b px-4 py-3
+      text-xs font-semibold tracking-wide uppercase;
+  }
+  .admin-table tbody td {
+    @apply border-cream-200 text-ink-700 border-b px-4 py-3 align-middle;
+  }
+  .admin-table tbody tr:hover {
+    @apply bg-cream-50;
+  }
+
+  /* Loading placeholder. A shimmer rather than a spinner: it reserves the right
+     amount of space, so the page does not jump when data lands. */
+  .skeleton {
+    @apply bg-cream-200 relative overflow-hidden rounded;
+    background-image: linear-gradient(
+      90deg,
+      var(--color-cream-200) 0%,
+      var(--color-cream-100) 40%,
+      var(--color-cream-200) 80%
+    );
+    background-size: 200% 100%;
+    animation: var(--animate-shimmer);
+  }
+
+  /**
+   * Server-authored HTML (blog posts, policy pages). Already sanitised server-side by
+   * utils/sanitize.js; this only styles it. Written out by hand rather than pulling in
+   * @tailwindcss/typography, which would be a dependency for one use.
+   */
+  .rich-text {
+    @apply text-ink-600 leading-relaxed;
+  }
+  .rich-text > * + * {
+    @apply mt-4;
+  }
+  .rich-text h2 {
+    @apply mt-8 text-xl sm:text-2xl;
+  }
+  .rich-text h3 {
+    @apply mt-6 text-lg;
+  }
+  .rich-text a {
+    @apply text-brand-700 font-medium underline decoration-brand-300 underline-offset-2 hover:decoration-brand-700;
+  }
+  .rich-text ul {
+    @apply list-disc space-y-1.5 pl-5;
+  }
+  .rich-text ol {
+    @apply list-decimal space-y-1.5 pl-5;
+  }
+  .rich-text blockquote {
+    @apply border-brand-300 text-ink-500 border-l-4 pl-4 italic;
+  }
+  .rich-text img {
+    @apply rounded-card;
+  }
+  .rich-text table {
+    @apply w-full text-sm;
+  }
+  .rich-text th,
+  .rich-text td {
+    @apply border-cream-300 border px-3 py-2;
+  }
+  .rich-text code {
+    @apply bg-cream-200 rounded px-1.5 py-0.5 text-[0.875em];
+  }
+}
+
+/* --- Utilities -------------------------------------------------------------- */
+
+@layer utilities {
+  /* Skip link: off-screen until focused. */
+  .sr-only-focusable {
+    @apply sr-only;
+  }
+  .sr-only-focusable:focus-visible {
+    @apply bg-brand-700 fixed top-3 left-3 z-[100] not-sr-only rounded-md px-4 py-2 text-white;
+  }
+
+  /* Horizontal scrollers (category chips, related products) without a visible bar. */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .snap-row {
+    @apply flex snap-x snap-mandatory overflow-x-auto;
+  }
+  .snap-row > * {
+    @apply snap-start;
+  }
+
+  /* Clamp helpers - product names and excerpts must not break card heights. */
+  .line-clamp-1-5 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+  }
+
+  /* Tabular figures for prices and totals, so a column of NPR amounts lines up. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .font-np {
+    font-family: var(--font-np);
+  }
+}
+
+/* Print: invoices and packing slips are printed from the browser. */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    @apply bg-white text-black;
+  }
+}

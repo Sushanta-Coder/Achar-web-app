@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!--
+      The title and description here are only the fallback for the very first paint and
+      for crawlers that do not execute JavaScript on the root document. Every route
+      overwrites them at runtime through src/lib/seo.js; product and blog pages pull
+      their copy from the API so the admin controls what gets indexed.
+    -->
+    <title>Devaa Achar - लुकेको स्वाद </title>
+    <meta
+      name="description"
+      content="Traditional Nepali achar made in small batches - mula, lapsi, gundruk, dalle and sukuti pickles. Cash on delivery, Khalti and eSewa. Delivered across Nepal."
+    />
+    <meta name="theme-color" content="#8f1d14" />
+    <link rel="canonical" href="https://acharghar.com.np/" />
+
+    <meta property="og:site_name" content="Achar Ghar" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Achar Ghar - Homemade Nepali Achar, Delivered Fresh" />
+    <meta
+      property="og:description"
+      content="Traditional Nepali achar made in small batches. Cash on delivery, Khalti and eSewa."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!--
+      Preconnect to Cloudinary: product images are the largest contentful paint on the
+      home and shop pages, and the DNS + TLS handshake would otherwise be serialised
+      after the JS bundle parses.
+    -->
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
+    <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      Achar Ghar needs JavaScript to run. To order over the phone instead, call
+      <a href="tel:+9779800000000">+977 98-0000-0000</a>.
+    </noscript>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
