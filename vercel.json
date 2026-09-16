@@ -1,8 +1,16 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+
+  "framework": "vite",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "outputDirectory": "client/dist",
+
   "rewrites": [
     { "source": "/api/(.*)", "destination": "https://achar-ghar-api.onrender.com/api/$1" },
     { "source": "/sitemap.xml", "destination": "https://achar-ghar-api.onrender.com/sitemap.xml" },
-    { "source": "/robots.txt",  "destination": "https://achar-ghar-api.onrender.com/robots.txt"  }
+    { "source": "/robots.txt",  "destination": "https://achar-ghar-api.onrender.com/robots.txt"  },
+    { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
     {
