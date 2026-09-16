@@ -163,28 +163,39 @@ If the deploy fails at boot, read the logs: `assertProductionEnv()` prints exact
 
 ## Step 5 — Storefront (Vercel)
 
-**Add New** → **Project** → import the same repo.
+**Add New** → **Project** → import the same repo, then **Deploy**. Accept every default.
 
-| Setting | Value |
-|---|---|
-| Framework Preset | Vite |
-| Root Directory | **`client`** |
-| Build Command | `npm run build` *(default)* |
-| Output Directory | `dist` *(default)* |
+**Leave Root Directory alone.** It must stay at the repository root, and this is the one setting on this page that will silently ruin the deployment if you change it. Vercel treats Root Directory as the project root — *"your app will not be able to access files outside of that directory"* — so pointing it at `client` means [vercel.json](vercel.json) is never read, and the `/api/*` rewrite goes with it. The site builds, the homepage renders, and every product list, login and checkout quietly falls through to the SPA shell instead of reaching your API. There is no error to read; it just behaves as though the database is empty.
 
-**Do not set `VITE_API_URL`.** Leaving it unset makes the client call `/api` relatively, which is what routes it through the proxy. Setting it to your Render URL would bypass the rewrite and reintroduce the third-party-cookie problem.
+Framework, install command, build command and output directory all come from `vercel.json` instead, so there is nothing to type:
 
-Before this works, you must point the rewrite at your own API. Edit [vercel.json](vercel.json) and replace all three occurrences of `https://api.acharghar.com.np` with your Render URL:
+```json
+{
+  "framework": "vite",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "outputDirectory": "client/dist"
+}
+```
+
+Building from the root is also what makes `npm install` resolve against the single `package-lock.json` this workspace has — the same reason `render.yaml` builds from the root.
+
+**Do not set `VITE_API_URL`.** Leaving it unset makes the client call `/api` relatively (`client/src/lib/apiClient.js`), which is what routes it through the proxy. Setting it to your Render URL would bypass the rewrite and reintroduce the third-party-cookie problem.
+
+Point the rewrite at your own API before or just after the first deploy — replace all three occurrences of the placeholder domain in `vercel.json` with your Render URL:
 
 ```json
 {
   "rewrites": [
     { "source": "/api/(.*)", "destination": "https://your-api.onrender.com/api/$1" },
     { "source": "/sitemap.xml", "destination": "https://your-api.onrender.com/sitemap.xml" },
-    { "source": "/robots.txt",  "destination": "https://your-api.onrender.com/robots.txt"  }
+    { "source": "/robots.txt",  "destination": "https://your-api.onrender.com/robots.txt"  },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
 ```
+
+That last entry is the SPA fallback React Router needs when someone hard-refreshes a deep link. Keep it **last**: rewrites are matched in order, so it must not shadow the three above it. It cannot swallow your JS and CSS either — Vercel checks the filesystem before applying rewrites.
 
 Commit and push. Vercel redeploys automatically.
 
@@ -334,7 +345,7 @@ Before telling anyone the URL:
 | Login succeeds then next request is 401 | `COOKIE_CROSS_SITE=true`, or `VITE_API_URL` is set. Unset both |
 | First request of the hour takes a minute | Free-tier sleep — see above |
 | Images vanish after a deploy | Cloudinary keys missing; server fell back to disk |
-| `/api/*` returns Vercel's 404 page | Rewrite in `vercel.json` still points at the old domain |
+| `/api/*` returns Vercel's 404 page, or the shop looks empty | Rewrite in `vercel.json` points at the wrong domain — or Root Directory is set to `client`, which makes Vercel ignore the file entirely |
 | Atlas connection times out | Network Access is not `0.0.0.0/0` |
 | `querySrv ECONNREFUSED` when seeding from home | Your ISP's DNS refuses SRV lookups — see below |
 | No emails | Render free blocks SMTP — see step 9 |
