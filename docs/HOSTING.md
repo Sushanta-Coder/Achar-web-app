@@ -336,7 +336,28 @@ Before telling anyone the URL:
 | Images vanish after a deploy | Cloudinary keys missing; server fell back to disk |
 | `/api/*` returns Vercel's 404 page | Rewrite in `vercel.json` still points at the old domain |
 | Atlas connection times out | Network Access is not `0.0.0.0/0` |
+| `querySrv ECONNREFUSED` when seeding from home | Your ISP's DNS refuses SRV lookups — see below |
 | No emails | Render free blocks SMTP — see step 9 |
+
+### `querySrv ECONNREFUSED` on your own machine
+
+A `mongodb+srv://` string needs a DNS SRV lookup, and some ISPs — including at least one in Nepal — run resolvers that refuse SRV queries outright. Atlas is fine, your credentials are fine, and the same string works perfectly from Render. Only the seed, run from home, fails.
+
+Confirm it is the resolver rather than the database:
+
+```bash
+node -e "const d=new(require('dns').Resolver);d.setServers(['8.8.8.8']);d.resolveSrv('_mongodb._tcp.YOUR-CLUSTER.mongodb.net',(e,r)=>console.log(e?e.code:r.length+' records'))"
+```
+
+If Google's resolver answers and your system one does not, preload [server/scripts/dnsPublic.cjs](server/scripts/dnsPublic.cjs), which points DNS at `8.8.8.8` and `1.1.1.1` for that process only:
+
+```bash
+node -r ./scripts/dnsPublic.cjs src/seed/seed.js --no-demo
+```
+
+Nothing about your machine's network settings changes, and nothing about the connection string does either.
+
+Do **not** "fix" this by switching to the non-SRV connection string. The SRV form is what lets Atlas move shards without your connection string going stale.
 
 ---
 
