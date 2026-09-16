@@ -102,9 +102,20 @@ node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 
 The server refuses to boot in production if these are missing, under 32 characters, identical to each other, or still contain `change-me`. That check lives in `assertProductionEnv()` in [server/src/config/env.js](server/src/config/env.js).
 
+> A generated pair is already waiting in `server/.env.production.local`, along with the rest of the production block ready to paste into Render. That file is git-ignored by the `*.local` rule and is never loaded by the running app — `env.js` reads only `server/.env`.
+
 ---
 
 ## Step 4 — API (Render)
+
+The repo contains a [render.yaml](render.yaml) blueprint, so the build command, start command and health check path come from version control rather than from fields you type. Use it:
+
+**New +** → **Blueprint** → connect your GitHub repo → **Apply**.
+
+Render reads the file, shows you a form containing only the values it cannot know — the ones marked `sync: false` — and provisions the service. Nothing secret lives in `render.yaml`; it is safe in a public repo.
+
+<details>
+<summary>Prefer to click through it manually? The equivalent settings.</summary>
 
 **New +** → **Web Service** → connect your GitHub repo.
 
@@ -117,7 +128,9 @@ The server refuses to boot in production if these are missing, under 32 characte
 | Instance Type | **Free** |
 | Health Check Path | `/api/health` |
 
-Then **Environment** → add these. Leave `CLIENT_URL` as a placeholder for now; you will not know your Vercel URL until step 5.
+</details>
+
+Either way, these are the environment variables. Leave `CLIENT_URL` as a placeholder for now; you will not know your Vercel URL until step 5.
 
 ```bash
 NODE_ENV=production

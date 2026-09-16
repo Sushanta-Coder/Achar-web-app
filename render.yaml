@@ -1,0 +1,77 @@
+# Render Blueprint — provisions the Achar Ghar API.
+#
+# Render reads this file when you create a Blueprint from the repo, so the build
+# command, start command and health check path come from version control instead of
+# being typed into a dashboard. The values marked `sync: false` are the ones Render
+# prompts you for; nothing secret is stored in this file.
+#
+# See docs/HOSTING.md step 4.
+
+services:
+  - type: web
+    name: achar-ghar-api
+    runtime: node
+    plan: free
+    # Closest free region to Nepal. Frankfurt is the next best if this one is busy.
+    region: singapore
+
+    # Installs the root workspace, which pulls in both server and client. Slower than
+    # a server-only install, but this is an npm workspaces monorepo and the root
+    # package-lock.json is the only lockfile — installing from `server/` alone would
+    # resolve a different dependency tree than the one the tests ran against.
+    buildCommand: npm install
+    startCommand: npm start --workspace=server
+
+    # Public and unauthenticated by design (server/src/routes/index.js) — it answers
+    # while Mongo is reconnecting, so a transient database blip does not make Render
+    # kill a container that would have recovered on its own.
+    healthCheckPath: /api/health
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      # --- Required. The server refuses to boot without these. ---
+      # assertProductionEnv() in server/src/config/env.js names the offender in the
+      # deploy log, one per line, when any of them is missing or wrong.
+      - key: MONGO_URI
+        sync: false # mongodb+srv://...  — must include /achar-ghar before the ?
+      - key: JWT_SECRET
+        sync: false # 96 hex chars; must differ from the refresh secret
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: CLIENT_URL
+        sync: false # your Vercel URL. verifyOrigin rejects every POST if this is wrong
+
+      # --- Strongly recommended. ---
+      # Without all three, product photos fall back to Render's ephemeral disk and
+      # every image on the site 404s after the first redeploy.
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+
+      # This service's own public URL, used to build payment callback links.
+      # Not derivable here: `fromService` yields a bare host, and this needs a scheme.
+      - key: SERVER_URL
+        sync: false # https://achar-ghar-api.onrender.com
+
+      # --- Used once, by the seed you run from your own machine (step 7). ---
+      - key: SEED_ADMIN_EMAIL
+        sync: false
+      - key: SEED_ADMIN_PASSWORD
+        sync: false
+
+# Deliberately not set here:
+#
+#   COOKIE_SECURE      defaults to true when NODE_ENV=production — already correct.
+#   COOKIE_CROSS_SITE  must stay false. Setting it true switches cookies to
+#                      SameSite=None, which is the third-party-cookie problem the
+#                      Vercel proxy rewrite exists to avoid.
+#   ESEWA_* / KHALTI_* unset reads as "gateway not configured" and the shop runs
+#                      cash-on-delivery. Sandbox values in production would mark real
+#                      orders paid for money never collected, so the server refuses to
+#                      boot with them. Add live credentials only — see step 8.
+#   EMAIL_*            Render's free tier blocks outbound SMTP (25/465/587). See step 9.
