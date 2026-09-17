@@ -197,7 +197,13 @@ export default function AdminProductForm() {
       })),
       // Position 0 is the thumbnail everywhere on the storefront, so it is derived
       // from the gallery order rather than being a separate field to keep in sync.
-      thumbnail: images[0].url,
+      // It is sent whole: the model stores an embedded image, and on edit the pre-save
+      // hook only fills a *missing* thumbnail, so reordering the gallery has to overwrite it.
+      thumbnail: {
+        url: images[0].url,
+        publicId: images[0].publicId || undefined,
+        alt: images[0].alt.trim(),
+      },
       variants: values.variants.map((variant, index) => ({
         ...(variant._id ? { _id: variant._id } : {}),
         size: variant.size.trim(),
@@ -234,9 +240,12 @@ export default function AdminProductForm() {
     try {
       await save.run(body);
     } catch (error) {
-      if (!applyFieldErrors(error, setError)) {
-        toast.error(error?.normalised?.message ?? 'Could not save the product');
-      }
+      // Always toast, even when the error mapped onto a field. The server validates the
+      // whole product, including `images` and `thumbnail`, which have no input here - so
+      // trusting the inline errors alone once let a rejected save look like nothing at all
+      // happened. On a form this long the toast is the only part guaranteed to be on screen.
+      applyFieldErrors(error, setError);
+      toast.error(error?.normalised?.message ?? 'Could not save the product');
     }
   };
 

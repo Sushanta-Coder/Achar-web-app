@@ -705,8 +705,10 @@ export default function Checkout() {
                   </span>
                   {quote?.delivery ? (
                     <span className="text-ink-500 block">
-                      {quote.delivery.zoneName} · about {quote.delivery.estimatedDays} day
-                      {quote.delivery.estimatedDays === 1 ? '' : 's'}
+                      {quote.delivery.zoneName}
+                      {deliveryWindow(quote.delivery.estimatedDays)
+                        ? ` · about ${deliveryWindow(quote.delivery.estimatedDays)}`
+                        : ''}
                     </span>
                   ) : null}
                 </ReviewRow>
@@ -898,6 +900,22 @@ function mapServerErrors(errors) {
       message: String(message),
     }))
     .filter((entry) => known.has(entry.field));
+}
+
+/**
+ * A zone's delivery estimate as text. The quote sends a `{min, max}` window rather than a
+ * single number, so the pair has to be flattened here - dropping the object straight into
+ * JSX throws "Objects are not valid as a React child" and takes the whole step down.
+ */
+function deliveryWindow(estimatedDays) {
+  const min = Number(estimatedDays?.min) || 0;
+  const max = Number(estimatedDays?.max) || 0;
+  if (!min && !max) return '';
+  if (!min || !max || min === max) {
+    const days = min || max;
+    return `${days} day${days === 1 ? '' : 's'}`;
+  }
+  return `${min}-${max} days`;
 }
 
 function Field({ label, error, hint, children }) {

@@ -83,7 +83,9 @@ const productBase = {
   category: objectId,
   subcategory: optionalText(80),
   images: z.array(imageInput).min(1, 'Add at least one product image').max(10),
-  thumbnail: optionalText(500),
+  // The model stores the thumbnail as a full embedded image, not a URL string - declaring
+  // it as text here let a bare URL through Zod and straight into a Mongoose CastError.
+  thumbnail: imageInput.optional(),
   variants: z.array(variantInput).min(1, 'Add at least one size'),
   ingredients: z.array(z.string().trim().min(1).max(80)).max(40).default([]),
   ingredientsNp: z.array(z.string().trim().min(1).max(80)).max(40).default([]),

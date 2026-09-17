@@ -186,6 +186,11 @@ export function apiError(error) {
  * Client and server validate with the same Zod shapes, so a 422 usually means a rule
  * only the server can check (a district that is not in the chosen province, a SKU
  * already taken). Those belong on the field, not in a toast.
+ *
+ * Returns whether anything was applied. Treat that as "the form was told", not as "the
+ * user can see it": the server names fields by *its* schema, which on a larger form can
+ * include derived or nested paths with no input of their own. A caller that cannot
+ * guarantee every field it might be sent is on screen should show its message anyway.
  */
 export function applyFieldErrors(error, setError) {
   const { errors } = apiError(error);
