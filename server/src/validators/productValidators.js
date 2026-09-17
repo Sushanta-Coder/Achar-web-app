@@ -38,6 +38,22 @@ export const productListQuery = z.object({
 });
 
 /**
+ * A discount the admin is allowed to clear.
+ *
+ * The obvious spelling of this - `z.union([rupees, z.null()])` - is wrong, and wrong in
+ * a way that reaches the shop floor. A union tries its options left to right and
+ * `rupees` coerces, so `Number(null)` is `0`, the first option succeeds and the
+ * `z.null()` branch is never reached: clearing a discount stored a discount of zero
+ * rupees. Blank input is mapped to `null` before any coercion can see it, which is also
+ * what the model defaults to.
+ */
+const clearableDiscount = z.preprocess((value) => {
+  if (value === null) return null;
+  if (typeof value === 'string' && value.trim() === '') return null;
+  return value;
+}, rupees.nullable());
+
+/**
  * A variant. `discountPrice` is checked against `price` here as well as in the model,
  * so the customer gets a field-level message instead of a generic 422.
  */
@@ -49,7 +65,7 @@ const variantInput = z
     weightGrams: z.coerce.number().int().min(1).max(50_000),
     sku: requiredText(40, 'SKU').transform((value) => value.toUpperCase()),
     price: rupees.refine((value) => value > 0, 'Price must be greater than zero'),
-    discountPrice: z.union([rupees, z.null()]).optional(),
+    discountPrice: clearableDiscount.optional(),
     stock: z.coerce.number().int().min(0).max(1_000_000).default(0),
     lowStockThreshold: z.coerce.number().int().min(0).max(1000).default(5),
     isActive: z.boolean().default(true),

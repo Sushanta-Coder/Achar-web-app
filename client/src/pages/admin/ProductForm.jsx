@@ -92,6 +92,20 @@ const optionalNumber = (value) => {
   return Number.isFinite(parsed) ? parsed : undefined;
 };
 
+/**
+ * Same, but blank means `null` rather than "leave it alone" - for a field whose empty
+ * state has to be written to the database rather than omitted from the payload.
+ *
+ * `Number('')` and `Number(null)` are both `0`, and for a discount `0` is not "no
+ * discount" but "sells for nothing", so the blank cases are mapped explicitly instead of
+ * being handed to `Number()`.
+ */
+const clearableNumber = (value) => {
+  if (value === '' || value == null) return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
 export default function AdminProductForm() {
   const { id } = useParams();
   const isEdit = Boolean(id);
@@ -212,7 +226,7 @@ export default function AdminProductForm() {
         sku: variant.sku.trim().toUpperCase(),
         price: Number(variant.price),
         // null, not undefined: clearing a discount has to overwrite the stored value.
-        discountPrice: variant.discountPrice === '' ? null : Number(variant.discountPrice),
+        discountPrice: clearableNumber(variant.discountPrice),
         stock: Number(variant.stock),
         lowStockThreshold: Number(variant.lowStockThreshold),
         isActive: Boolean(variant.isActive),

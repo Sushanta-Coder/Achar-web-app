@@ -111,6 +111,15 @@ export const env = {
   },
 
   email: {
+    /**
+     * `brevo` sends over HTTPS; `smtp` uses nodemailer. Defaults to whichever is
+     * configured, preferring Brevo - hosts on free tiers (Render among them) block the
+     * outbound SMTP ports, so an API transport is the only one that reaches anyone.
+     */
+    provider: (process.env.EMAIL_PROVIDER || (process.env.BREVO_API_KEY ? 'brevo' : 'smtp'))
+      .trim()
+      .toLowerCase(),
+    brevoApiKey: process.env.BREVO_API_KEY || '',
     host: process.env.EMAIL_HOST || '',
     port: int(process.env.EMAIL_PORT, 587),
     secure: bool(process.env.EMAIL_SECURE, int(process.env.EMAIL_PORT, 587) === 465),
@@ -118,7 +127,9 @@ export const env = {
     password: process.env.EMAIL_PASSWORD || '',
     from: process.env.EMAIL_FROM || 'Achar Ghar <no-reply@acharghar.com.np>',
     get enabled() {
-      return Boolean(this.host && this.user && this.password);
+      return this.provider === 'brevo'
+        ? Boolean(this.brevoApiKey)
+        : Boolean(this.host && this.user && this.password);
     },
   },
 

@@ -23,7 +23,7 @@ import { formatPrice } from '../../lib/format';
 const NAV = [
   { to: '/shop', label: 'Shop' },
   { to: '/categories', label: 'Categories' },
-  { to: '/blog', label: 'Recipes' },
+  { to: '/track-order', label: 'Track order' },
   { to: '/about', label: 'Our story' },
   { to: '/contact', label: 'Contact' },
 ];
@@ -325,10 +325,6 @@ export default function Header() {
 
               <div className="border-cream-300 my-2 border-t" />
 
-              <NavLink to="/track-order" className="text-ink-700 flex items-center gap-2.5 rounded-lg px-3 py-3 text-[0.9375rem]">
-                <Icon name="truck" className="size-4.5" />
-                Track my order
-              </NavLink>
               {isStaff ? (
                 <NavLink to="/admin" className="text-ink-700 flex items-center gap-2.5 rounded-lg px-3 py-3 text-[0.9375rem]">
                   <Icon name="dashboard" className="size-4.5" />

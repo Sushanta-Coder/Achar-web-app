@@ -138,6 +138,23 @@ export async function listProducts(query = {}, { includeInactive = false, fields
 }
 
 /**
+ * What a variant actually sells at.
+ *
+ * Mirrors the `effectivePrice` virtual on ProductVariant, and has to keep mirroring it:
+ * these cards are built from `.lean()` documents, so the virtual is not there to call.
+ * The guard is `&&` rather than `??` on purpose. `??` only falls back on null, so a
+ * `discountPrice` of `0` reads as a real discount and puts the jar on the shop for
+ * nothing - which is exactly what happened until the validator stopped writing zeroes.
+ * Rows created before that fix still hold them. A discount at or above the list price
+ * is ignored for the same reason the model ignores it: it is a typo, not an offer.
+ */
+function sellingPrice(variant) {
+  return variant.discountPrice && variant.discountPrice < variant.price
+    ? variant.discountPrice
+    : variant.price;
+}
+
+/**
  * Adds the derived fields a product card needs. Computed here rather than stored so
  * a price change never leaves a stale badge behind.
  */
@@ -145,7 +162,7 @@ function decorateCard(product) {
   const variants = (product.variants ?? []).filter((variant) => variant.isActive);
   const cheapest = variants.reduce(
     (best, variant) => {
-      const price = variant.discountPrice ?? variant.price;
+      const price = sellingPrice(variant);
       return !best || price < best.price ? { price, variant } : best;
     },
     null
@@ -155,7 +172,7 @@ function decorateCard(product) {
     ...product,
     variants: variants.map((variant) => ({
       ...variant,
-      effectivePrice: variant.discountPrice ?? variant.price,
+      effectivePrice: sellingPrice(variant),
       inStock: (variant.availableStock ?? 0) > 0,
     })),
     defaultVariant: cheapest?.variant ?? null,

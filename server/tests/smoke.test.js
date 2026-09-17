@@ -125,6 +125,103 @@ describe('money is calculated server-side', () => {
       })
       .expect(422);
   });
+
+  /**
+   * A cleared discount once reached the database as `0` instead of `null`, and the
+   * storefront read that zero as a real price: a Rs. 420 jar went on the shop for
+   * nothing. Two separate mistakes had to line up - a coercing Zod union that turned
+   * `null` into `0`, and a `??` in `catalogService` where the model uses `&&` - so this
+   * asserts the stored value *and* what a shopper is quoted, not just one of them.
+   */
+  it('stores a cleared discount as null, and never prices a jar at zero', async () => {
+    const admin = await signIn(config.seed.adminEmail, config.seed.adminPassword);
+    const categories = await request(app).get('/api/categories').expect(200);
+    const categoryId = (categories.body.data.categories ?? categories.body.data)[0]._id;
+
+    const image = { url: 'https://example.com/jar.jpg', alt: 'A jar of pickle' };
+    const unique = Date.now().toString().slice(-6);
+
+    // Every shape a blank "Sale price" field can arrive in, plus a real discount as a
+    // control - if the guard were simply "ignore discountPrice", that one would fail.
+    const cases = [
+      { label: 'blank string', sent: '', expected: null },
+      { label: 'explicit null', sent: null, expected: null },
+      { label: 'omitted', sent: undefined, expected: null },
+      { label: 'a real discount', sent: 380, expected: 380 },
+    ];
+
+    for (const [index, testCase] of cases.entries()) {
+      const suffix = `${unique}${index}`;
+      const variant = {
+        size: '250g',
+        weightGrams: 250,
+        sku: `SMOKE${suffix}-250`,
+        price: 420,
+        stock: 5,
+        isActive: true,
+        isDefault: true,
+      };
+      if (testCase.sent !== undefined) variant.discountPrice = testCase.sent;
+
+      const created = await write(admin.agent, admin.csrf, 'post', '/api/products/admin')
+        .send({
+          name: `Smoke Discount ${suffix}`,
+          sku: `SMOKE${suffix}`,
+          shortDescription: 'Checking how a cleared discount is stored.',
+          description: 'A description long enough to satisfy the product validator here.',
+          category: categoryId,
+          images: [image],
+          thumbnail: image,
+          variants: [variant],
+        })
+        .expect(201);
+
+      const stored = created.body.data.product.variants[0].discountPrice;
+      expect(stored, `${testCase.label} should store ${testCase.expected}`).toBe(testCase.expected);
+
+      const shopper = await request(app)
+        .get(`/api/products/${created.body.data.product.slug}`)
+        .expect(200);
+      expect(shopper.body.data.product.variants[0].effectivePrice).toBe(testCase.expected ?? 420);
+      expect(shopper.body.data.product.price).toBeGreaterThan(0);
+    }
+  });
+
+  /** The other half of the rule: a "discount" that is not one must be refused outright. */
+  it('refuses a discount that is not below the regular price', async () => {
+    const admin = await signIn(config.seed.adminEmail, config.seed.adminPassword);
+    const categories = await request(app).get('/api/categories').expect(200);
+    const categoryId = (categories.body.data.categories ?? categories.body.data)[0]._id;
+
+    const image = { url: 'https://example.com/jar.jpg', alt: 'A jar of pickle' };
+    const suffix = `${Date.now().toString().slice(-6)}X`;
+
+    const response = await write(admin.agent, admin.csrf, 'post', '/api/products/admin')
+      .send({
+        name: `Smoke Discount ${suffix}`,
+        sku: `SMOKE${suffix}`,
+        shortDescription: 'A discount above the list price must be rejected.',
+        description: 'A description long enough to satisfy the product validator here.',
+        category: categoryId,
+        images: [image],
+        thumbnail: image,
+        variants: [
+          {
+            size: '250g',
+            weightGrams: 250,
+            sku: `SMOKE${suffix}-250`,
+            price: 420,
+            discountPrice: 500,
+            stock: 5,
+            isActive: true,
+            isDefault: true,
+          },
+        ],
+      })
+      .expect(422);
+
+    expect(JSON.stringify(response.body.errors)).toContain('below the regular price');
+  });
 });
 
 describe('authorization', () => {
