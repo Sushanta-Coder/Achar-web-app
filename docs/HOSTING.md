@@ -155,7 +155,9 @@ You do **not** need to set `COOKIE_SECURE` or `COOKIE_CROSS_SITE`:
 
 Payment gateway keys are covered in step 8 — the shop deploys fine without them and runs cash-on-delivery only.
 
-Deploy. The first build takes a few minutes. When it finishes, visit `https://your-api.onrender.com/api/health` — you should see `{"success":true,"status":"ok",...}`.
+Deploy. The first build takes a few minutes. When it finishes, visit `https://your-api.onrender.com/api/health` — you should see `{"success":true,"status":"ok","uptimeSeconds":12,"commit":"2fbfe64"}`.
+
+`commit` is the short SHA of the build that is actually running, read from the `RENDER_GIT_COMMIT` variable Render injects. Compare it with `git rev-parse --short HEAD` whenever you push something and cannot see the change — see [Pushed a fix, production did not change](#pushed-a-fix-production-did-not-change).
 
 If the deploy fails at boot, read the logs: `assertProductionEnv()` prints exactly which variable is wrong, one per line. That is by design, and it is the most common cause of a failed first deploy.
 
@@ -367,7 +369,7 @@ Note the arithmetic: 750 instance-hours is **31 days × 24 h = 744 h**, so one s
 
 Before telling anyone the URL:
 
-- [ ] `https://your-api.onrender.com/api/health` returns `status: "ok"`
+- [ ] `https://your-api.onrender.com/api/health` returns `status: "ok"`, and its `commit` matches `git rev-parse --short HEAD`
 - [ ] Storefront loads and shows products
 - [ ] You can log in as admin and reach `/admin`
 - [ ] **Log out, then confirm `/admin` is refused** — the guard is server-side, but verify it
@@ -385,6 +387,7 @@ Before telling anyone the URL:
 | Symptom | Cause |
 |---|---|
 | Deploy fails immediately, logs list variables | `assertProductionEnv()` — fix exactly what it names |
+| A pushed fix is not live, no error anywhere | Render is still serving an older build — see below |
 | Browsing works, every login/checkout is 403 | `CLIENT_URL` on Render ≠ your actual Vercel URL |
 | Login succeeds then next request is 401 | `COOKIE_CROSS_SITE=true`, or `VITE_API_URL` is set. Unset both |
 | First request of the hour takes a minute | Free-tier sleep — see above |
@@ -393,6 +396,25 @@ Before telling anyone the URL:
 | Atlas connection times out | Network Access is not `0.0.0.0/0` |
 | `querySrv ECONNREFUSED` when seeding from home | Your ISP's DNS refuses SRV lookups — see below |
 | No emails | `BREVO_API_KEY` or `EMAIL_FROM` missing, or the sender address is unverified — see step 9 |
+
+### Pushed a fix, production did not change
+
+This one has no error message anywhere, which is what makes it expensive. A service that has stopped deploying still answers every request, still returns `200` from the health check, and still looks healthy on the dashboard — it just runs last month's code. You read a bug report, find the bug already fixed in the repo, and start doubting the fix instead of the deploy.
+
+Ask the running service what it is:
+
+```bash
+curl -s https://your-api.onrender.com/api/health
+```
+
+Compare `commit` with your local `git rev-parse --short HEAD`. If they differ, the code is fine and the deploy is the problem:
+
+1. Render Dashboard → your API service → **Manual Deploy** → **Deploy latest commit**.
+2. Then **Settings** → **Build & Deploy** → confirm **Auto-Deploy** is **On** and **Branch** is `main`, so the next push does not need step 1.
+
+Auto-deploy comes off on its own more often than you would expect: suspending a service for a billing or free-tier limit disables it, and it is not switched back on when the service resumes.
+
+Vercel is not affected — it deploys on push by default and is much harder to knock out of that. When the storefront has a change and the API does not, this is nearly always why.
 
 ### `querySrv ECONNREFUSED` on your own machine
 

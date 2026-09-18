@@ -35,9 +35,29 @@ const router = Router();
  * so it still answers while Mongo is reconnecting - a health check that fails
  * whenever the database blips would have the balancer pull a node that is about to
  * recover on its own. `/api/admin/health` is the detailed, authenticated version.
+ *
+ * `commit` is the build actually running. Render, Vercel, Railway and Fly all inject
+ * the deployed SHA, so this answers "did my push reach production?" without a
+ * dashboard - a question worth one line here, because the failure it diagnoses is
+ * silent: a service that stopped auto-deploying still returns 200 to every check
+ * while serving code from weeks ago. Short SHA only; it is public.
  */
+const COMMIT = (
+  process.env.RENDER_GIT_COMMIT ||
+  process.env.VERCEL_GIT_COMMIT_SHA ||
+  process.env.RAILWAY_GIT_COMMIT_SHA ||
+  process.env.SOURCE_VERSION ||
+  process.env.GIT_COMMIT ||
+  ''
+).slice(0, 7);
+
 router.get('/health', (_req, res) =>
-  res.json({ success: true, status: 'ok', uptimeSeconds: Math.round(process.uptime()) })
+  res.json({
+    success: true,
+    status: 'ok',
+    uptimeSeconds: Math.round(process.uptime()),
+    ...(COMMIT ? { commit: COMMIT } : {}),
+  })
 );
 
 router.use('/auth', authRoutes);
