@@ -25,8 +25,8 @@ Total cost: **Rs 0/month.** The one thing you will eventually want to pay for is
                             ┌───────────────────────┼──────────────────┐
                             ▼                       ▼                  ▼
                    ┌─────────────────┐   ┌──────────────────┐  ┌──────────────┐
-                   │ MongoDB Atlas   │   │ Cloudinary       │  │ Brevo (SMTP) │
-                   │ M0 · 512 MB     │   │ product photos   │  │ optional     │
+                   │ MongoDB Atlas   │   │ Cloudinary       │  │ Brevo (API)  │
+                   │ M0 · 512 MB     │   │ product photos   │  │ 300 mails/day│
                    └─────────────────┘   └──────────────────┘  └──────────────┘
 ```
 
@@ -282,22 +282,66 @@ A gateway you simply leave unset is switched off cleanly, and only the methods t
 
 ---
 
-## Step 9 — Email (optional)
+## Step 9 — Email (order confirmations)
 
-Order confirmations and password resets need SMTP. Without it the server logs the message instead of sending it, and everything else keeps working.
+When a customer places an order the shop emails them a confirmation, and emails you a
+copy. Password resets use the same path. Until this is configured the server writes the
+message to its log instead of sending it and everything else keeps working — so you can
+launch first and come back to this.
 
-**Render's free tier blocks outbound SMTP ports (25, 465, 587).** A normal SMTP provider will silently fail there. Your options:
+**Render's free tier blocks outbound SMTP ports (25, 465, 587)**, which is why an
+ordinary SMTP provider appears configured but never delivers anything. Brevo also has a
+REST API on port 443, which is not blocked, and that is what the server uses by default.
+Their free tier covers 300 emails a day.
 
-1. **Launch without email.** Password reset becomes a manual process; order confirmations happen in the admin panel.
-2. **Upgrade to a paid Render instance** ($7/month), then any SMTP provider works — Brevo's free tier allows 300 emails/day:
+### Setting it up
+
+1. Create an account at [brevo.com](https://www.brevo.com) — the free plan is enough.
+
+2. **Verify the address the shop will send from.** Brevo will not send from an address
+   it has not confirmed belongs to you. Go to **Senders, domains & dedicated IPs →
+   Senders → Add a sender**, enter your Gmail address, and click the link Brevo emails
+   you.
+
+   Your own Gmail works and is the quickest way to launch. Customers will see the order
+   arrive from that address. Once you own `acharghar.com.np` you can verify the whole
+   domain under the **Domains** tab and send from `orders@acharghar.com.np` instead,
+   which looks considerably more like a shop and less like a person.
+
+3. **Create an API key** at **SMTP & API → API keys → Generate a new API key**. Copy it
+   now; Brevo shows it once.
+
+4. **Add two variables to Render** (Dashboard → your API service → Environment), then
+   let it redeploy:
+
    ```bash
-   EMAIL_HOST=smtp-relay.brevo.com
-   EMAIL_PORT=587
-   EMAIL_USER=<your brevo login>
-   EMAIL_PASSWORD=<your brevo SMTP key>
-   EMAIL_FROM=Achar Ghar <no-reply@yourdomain.com>
+   BREVO_API_KEY=xkeysib-...
+   EMAIL_FROM=Achar Ghar <the-address-you-verified@gmail.com>
    ```
-3. **Host the API somewhere without the SMTP block** — Fly.io and Railway both have free allowances and permit outbound SMTP.
+
+   `EMAIL_FROM` must be the address from step 2, or Brevo rejects the send. No other
+   email variables are needed — `EMAIL_HOST`, `EMAIL_USER` and `EMAIL_PASSWORD` belong
+   to the SMTP transport and are ignored here.
+
+### Checking it worked
+
+Place a test order on the live site with your own email in the customer field. Within a
+few seconds you should have the confirmation. If nothing arrives, open the Render logs
+and look for the line starting `Failed to send email` — Brevo's own message is quoted
+verbatim there, and it is usually one of two things:
+
+| What the log says | What it means |
+|---|---|
+| `Brevo responded 401` | The API key is wrong, or was regenerated after you pasted it |
+| `sender ... not valid` / `403` | `EMAIL_FROM` is not the address you verified in step 2 |
+| `[email skipped - brevo not configured]` | `BREVO_API_KEY` never reached the service — check for a typo in the variable name and that the redeploy finished |
+
+### If you would rather use SMTP
+
+On a paid Render instance, Fly.io or Railway the ports are open and plain SMTP works.
+Set `EMAIL_PROVIDER=smtp` along with `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_USER` and
+`EMAIL_PASSWORD`. Leaving `EMAIL_PROVIDER` unset selects Brevo whenever `BREVO_API_KEY`
+is present, and SMTP otherwise.
 
 ---
 
@@ -348,7 +392,7 @@ Before telling anyone the URL:
 | `/api/*` returns Vercel's 404 page, or the shop looks empty | Rewrite in `vercel.json` points at the wrong domain — or Root Directory is set to `client`, which makes Vercel ignore the file entirely |
 | Atlas connection times out | Network Access is not `0.0.0.0/0` |
 | `querySrv ECONNREFUSED` when seeding from home | Your ISP's DNS refuses SRV lookups — see below |
-| No emails | Render free blocks SMTP — see step 9 |
+| No emails | `BREVO_API_KEY` or `EMAIL_FROM` missing, or the sender address is unverified — see step 9 |
 
 ### `querySrv ECONNREFUSED` on your own machine
 

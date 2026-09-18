@@ -37,7 +37,7 @@ The client runs on <http://localhost:5173> and the API on <http://localhost:5000
 - **Database** — MongoDB (Atlas in production; in-memory fallback in development)
 - **Images** — Cloudinary (leave env vars blank in dev to skip)
 - **Payments** — Khalti, eSewa (sandbox credentials work out of the box)
-- **Email** — Any SMTP provider via Nodemailer (leave blank in dev to skip)
+- **Email** — Brevo's REST API, or any SMTP provider via Nodemailer (leave blank in dev to skip)
 
 ## Project structure
 
