@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Icon from '../../components/ui/Icon';
@@ -47,6 +47,24 @@ const EMPTY_VARIANT = {
   lowStockThreshold: 5,
   isActive: true,
   isDefault: false,
+};
+
+/**
+ * Field name to the panel heading it sits under, for the "nothing saved" toast.
+ *
+ * Deliberately coarse: the toast is read at a glance by someone who has just watched a
+ * button appear to do nothing, and a panel name is what they need to find it. The exact
+ * field already says "Required" next to itself once they get there. Anything unlisted
+ * falls back to Basics, which is where the plain text inputs live.
+ */
+const SECTION_LABELS = {
+  name: 'Basics',
+  sku: 'Basics',
+  category: 'Basics',
+  shortDescription: 'Basics',
+  description: 'Basics',
+  variants: 'Sizes & pricing',
+  images: 'Images',
 };
 
 const BLANK = {
@@ -114,6 +132,7 @@ export default function AdminProductForm() {
 
   const [images, setImages] = useState([]);
   const [imageError, setImageError] = useState('');
+  const formRef = useRef(null);
 
   const categories = useFetch('/categories', { params: { includeInactive: true } });
   const existing = useFetch(isEdit ? `/products/admin/${id}` : null, { skip: !isEdit });
@@ -169,6 +188,40 @@ export default function AdminProductForm() {
     }
   );
 
+  /**
+   * Put the first thing the admin has to fix on screen.
+   *
+   * This form is roughly three screens tall and the Create button sits at the top, so
+   * every rejection so far has been reported somewhere the admin was not looking: a
+   * message beside the uploader, two screens below the button that produced it. From
+   * the chair it looks like the button does nothing at all.
+   */
+  const revealProblem = (selector) => {
+    const target = selector
+      ? formRef.current?.querySelector(selector)
+      : formRef.current?.querySelector('[aria-invalid="true"], .field-error');
+    target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (typeof target?.focus === 'function') target.focus({ preventScroll: true });
+  };
+
+  /**
+   * The client-side half of the same problem.
+   *
+   * `handleSubmit` refuses to call `onSubmit` when its own rules fail, and on its own it
+   * only moves focus - so an empty size row, which is what a blank form starts with,
+   * scrolls somewhere and says "Required" three times with nothing at the top of the
+   * page to explain why nothing saved. Name the sections instead: at this point the
+   * admin needs to know *where* to look, and "Sizes & pricing" does that better than
+   * `variants.0.size` would.
+   */
+  const onInvalid = (fieldErrors) => {
+    const sections = new Set();
+    for (const key of Object.keys(fieldErrors)) {
+      sections.add(SECTION_LABELS[key] ?? 'Basics');
+    }
+    toast.error(`Fill in the required fields under ${[...sections].join(' and ')}`);
+  };
+
   const onSubmit = async (values) => {
     setImageError('');
 
@@ -176,11 +229,15 @@ export default function AdminProductForm() {
     // uploader instead of at the top of a long form.
     if (!images.length) {
       setImageError('Add at least one product image');
+      toast.error('Add at least one product image');
+      revealProblem('[data-field="images"]');
       return;
     }
     const missingAlt = images.findIndex((image) => !image.alt?.trim());
     if (missingAlt >= 0) {
       setImageError(`Image ${missingAlt + 1} needs alt text`);
+      toast.error(`Image ${missingAlt + 1} needs alt text`);
+      revealProblem('[data-field="images"]');
       return;
     }
 
@@ -259,7 +316,21 @@ export default function AdminProductForm() {
       // trusting the inline errors alone once let a rejected save look like nothing at all
       // happened. On a form this long the toast is the only part guaranteed to be on screen.
       applyFieldErrors(error, setError);
-      toast.error(error?.normalised?.message ?? 'Could not save the product');
+
+      // Say what is wrong, not that something is. The server's own headline is
+      // "Please check the highlighted fields", which is no help when the field it means
+      // is two screens down or - for `images` - has no input to highlight at all. The
+      // per-field messages underneath it are already written for a human ("Add at least
+      // one size"), so show those instead and keep the headline as the fallback.
+      const details = Object.values(error?.normalised?.errors ?? {})
+        .map(String)
+        .filter(Boolean);
+      toast.error(
+        details.length
+          ? details.join(' · ')
+          : (error?.normalised?.message ?? 'Could not save the product')
+      );
+      revealProblem();
     }
   };
 
@@ -272,7 +343,7 @@ export default function AdminProductForm() {
   const watchedVariants = watch('variants');
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate>
+    <form ref={formRef} onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate>
       <PageHeader
         title={isEdit ? watchedName || 'Edit product' : 'New product'}
         breadcrumb={[
@@ -444,7 +515,9 @@ export default function AdminProductForm() {
 
           {/* --- Images --- */}
           <Panel title="Images">
-            <ImageUploader images={images} onChange={setImages} folder="products" max={10} />
+            <div data-field="images">
+              <ImageUploader images={images} onChange={setImages} folder="products" max={10} />
+            </div>
             {imageError ? (
               <p role="alert" className="field-error mt-2">
                 {imageError}
