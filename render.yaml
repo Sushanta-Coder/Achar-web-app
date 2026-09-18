@@ -27,6 +27,13 @@ services:
     # kill a container that would have recovered on its own.
     healthCheckPath: /api/health
 
+    # Stated rather than left to the default, because the default is not what this
+    # service was doing: it sat eight commits behind `main` for a day, with every
+    # push silently ignored and a green "Live" badge the whole time. A service that
+    # has quietly stopped deploying looks exactly like one with no bugs to fix, so
+    # the setting that governs it belongs in the repo where it can be read.
+    autoDeploy: true
+
     envVars:
       - key: NODE_ENV
         value: production
