@@ -99,14 +99,34 @@ export async function sendMail({ to, subject, html, text, replyTo }) {
   }
 }
 
+/**
+ * The entities the templates actually emit, plus the five `escape()` produces from
+ * customer-supplied text. `&amp;` is applied last so `&amp;lt;` decodes to `&lt;`
+ * rather than to `<` - escaping is not undone twice.
+ */
+const ENTITIES = [
+  [/&middot;/g, '·'],
+  [/&times;/g, '×'],
+  [/&nbsp;/g, ' '],
+  [/&quot;/g, '"'],
+  [/&#3[59];/g, "'"],
+  [/&lt;/g, '<'],
+  [/&gt;/g, '>'],
+  [/&amp;/g, '&'],
+];
+
+/**
+ * The plain-text alternative for a mail client that will not render HTML. Tags go
+ * first, then entities - a reader who gets this part should not be shown `&middot;`.
+ */
 export function stripHtml(html = '') {
-  return String(html)
+  let text = String(html)
     .replace(/<style[\s\S]*?<\/style>/gi, '')
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<\/(p|div|tr|h[1-6])>/gi, '\n')
-    .replace(/<[^>]+>/g, '')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
+    .replace(/<[^>]+>/g, '');
+  for (const [pattern, char] of ENTITIES) text = text.replace(pattern, char);
+  return text.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
 /** Confirms the credentials are usable, without sending anything. */
