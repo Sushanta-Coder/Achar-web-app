@@ -33,7 +33,7 @@ The client runs on <http://localhost:5173> and the API on <http://localhost:5000
 ## Stack
 
 - **Client** — React 19, React Router 7, Tailwind CSS v4, Vite
-- **Server** — Node 20, Express, Mongoose 8, JWT (httpOnly cookies)
+- **Server** — Node 20+, Express 5, Mongoose 9, JWT (httpOnly cookies)
 - **Database** — MongoDB (Atlas in production; in-memory fallback in development)
 - **Images** — Cloudinary (leave env vars blank in dev to skip)
 - **Payments** — Khalti, eSewa (sandbox credentials work out of the box)
