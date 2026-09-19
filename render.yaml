@@ -65,6 +65,17 @@ services:
       - key: SERVER_URL
         sync: false # https://achar-ghar-api.onrender.com
 
+      # --- Order confirmation emails (step 9). ---
+      # Brevo's REST API, not SMTP: this plan blocks outbound 25/465/587, so the
+      # server posts to api.brevo.com over 443 instead. Declared here rather than
+      # left in the dashboard because a service managed by a Blueprint has no
+      # record of a variable this file does not name — and an order confirmation
+      # that silently stops being sent is not a failure anyone notices.
+      - key: BREVO_API_KEY
+        sync: false # the xkeysib- key, not the xsmtpsib- SMTP one
+      - key: EMAIL_FROM
+        sync: false # Achar Ghar <you@example.com> — the address must be a verified sender in Brevo
+
       # --- Used once, by the seed you run from your own machine (step 7). ---
       - key: SEED_ADMIN_EMAIL
         sync: false
@@ -81,4 +92,7 @@ services:
 #                      cash-on-delivery. Sandbox values in production would mark real
 #                      orders paid for money never collected, so the server refuses to
 #                      boot with them. Add live credentials only — see step 8.
-#   EMAIL_*            Render's free tier blocks outbound SMTP (25/465/587). See step 9.
+#   EMAIL_HOST/USER/PASSWORD
+#                      the SMTP fallback, unusable here: this plan blocks outbound
+#                      25, 465 and 587, so a correct SMTP setup still times out.
+#                      BREVO_API_KEY above is the path that works.
