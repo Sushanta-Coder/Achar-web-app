@@ -327,16 +327,26 @@ Their free tier covers 300 emails a day.
 
 ### Checking it worked
 
-Place a test order on the live site with your own email in the customer field. Within a
-few seconds you should have the confirmation. If nothing arrives, open the Render logs
-and look for the line starting `Failed to send email` — Brevo's own message is quoted
-verbatim there, and it is usually one of two things:
+In the admin dashboard, go to **Settings → Payments**. The "How this deployment is
+configured" panel has an **Email** row with a **Send test** button; it mails your own
+admin address through the same sender and transport a customer's order confirmation
+uses. If the provider refuses, the reason it gives is shown on screen rather than
+buried in a log — which is the point, because the two things that go wrong are
+indistinguishable from the outside:
 
-| What the log says | What it means |
+| What it says | What it means |
 |---|---|
 | `Brevo responded 401` | The API key is wrong, or was regenerated after you pasted it |
 | `sender ... not valid` / `403` | `EMAIL_FROM` is not the address you verified in step 2 |
-| `[email skipped - brevo not configured]` | `BREVO_API_KEY` never reached the service — check for a typo in the variable name and that the redeploy finished |
+| `Email is not configured` | `BREVO_API_KEY` never reached the service — check for a typo in the variable name and that the redeploy finished |
+
+The button is greyed out until a provider is configured at all, so a disabled button is
+itself the answer to "did my environment variable take effect?".
+
+Once that succeeds, place a test order on the live site with your own email in the
+customer field to confirm the order path end to end. The same failures appear in the
+Render logs on the line starting `Failed to send email`, with Brevo's message quoted
+verbatim.
 
 ### If you would rather use SMTP
 
