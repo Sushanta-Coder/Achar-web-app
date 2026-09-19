@@ -45,7 +45,7 @@ export default function TrackOrder() {
   useSeo({
     title: 'Track your order',
     description:
-      'Check where your Achar Ghar order is. Enter your order number and the phone number or email you used at checkout.',
+      'Check where your Deeva Achar order is. Enter your order number and the phone number or email you used at checkout.',
     canonical: '/track-order',
   });
 

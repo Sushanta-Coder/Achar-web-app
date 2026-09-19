@@ -405,7 +405,7 @@ export const blogPosts = [
 <h2>What we do</h2>
 <p>Domestic orders ship in rigid boxes with tamper-proof lid seals. For international orders we currently ship only vegetarian pickles, and we mark the customs declaration accurately - under-declaring the contents of a food parcel is how a shipment gets seized.</p>
 `,
-    authorName: 'Achar Ghar Team',
+    authorName: 'Deeva Achar Team',
     status: 'published',
     seo: {
       title: 'Sending Nepali Achar Abroad - Packing and Customs Guide',
@@ -529,7 +529,7 @@ export const policies = {
 <h2>Cookies</h2>
 <p>We use cookies for authentication (an HTTP-only session cookie), for CSRF protection, and to remember your cart. We do not use third-party advertising cookies.</p>
 <h2>Your Rights</h2>
-<p>You may request a copy of your data, ask us to correct it, or ask us to delete your account. Write to privacy@acharghar.com.np. We keep order records for seven years where tax law requires it, even after an account is deleted.</p>
+<p>You may request a copy of your data, ask us to correct it, or ask us to delete your account. Write to privacy@deevaachar.com.np. We keep order records for seven years where tax law requires it, even after an account is deleted.</p>
 <h2>Security</h2>
 <p>Passwords are hashed with bcrypt and are never stored or recoverable in plain text. All traffic is served over HTTPS.</p>
 `,
@@ -546,7 +546,7 @@ export const policies = {
 <h2>Reviews</h2>
 <p>Reviews may be published only by customers who bought the product. We moderate reviews before publication and remove those that are abusive, off-topic or fake. We do not remove reviews for being critical.</p>
 <h2>Intellectual Property</h2>
-<p>All content on this site - text, photography, logos and product descriptions - belongs to Achar Ghar Pvt. Ltd. and may not be reproduced commercially without written permission.</p>
+<p>All content on this site - text, photography, logos and product descriptions - belongs to Deeva Achar Pvt. Ltd. and may not be reproduced commercially without written permission.</p>
 <h2>Liability</h2>
 <p>Please read the allergen information on every product page before ordering. Our liability for any order is limited to the amount you paid for it.</p>
 `,

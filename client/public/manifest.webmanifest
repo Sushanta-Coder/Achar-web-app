@@ -1,6 +1,6 @@
 {
-  "name": "Achar Ghar — Nepali pickles",
-  "short_name": "Achar Ghar",
+  "name": "Deeva Achar — Nepali pickles",
+  "short_name": "Deeva Achar",
   "description": "Handmade Nepali achar, delivered across Nepal.",
   "lang": "en",
   "start_url": "/",
@@ -17,9 +17,9 @@
       "purpose": "any"
     },
     {
-      "src": "/apple-touch-icon.png",
-      "sizes": "180x180",
-      "type": "image/png",
+      "src": "/logo.jpg",
+      "sizes": "1254x1254",
+      "type": "image/jpeg",
       "purpose": "any"
     }
   ],

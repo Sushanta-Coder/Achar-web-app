@@ -38,7 +38,7 @@ export default function Register() {
   useSeo({
     title: 'Create an account',
     description:
-      'Create an Achar Ghar account to track orders, save addresses and check out faster.',
+      'Create an Deeva Achar account to track orders, save addresses and check out faster.',
     canonical: '/register',
     noIndex: true,
   });

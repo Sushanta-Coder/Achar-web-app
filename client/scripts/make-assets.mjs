@@ -6,22 +6,26 @@ import { fileURLToPath } from 'node:url';
 /**
  * Generates the static images in `public/` that cannot be committed as text.
  *
- * These are placeholders with a job: `index.html` links an apple-touch-icon and `seo.js`
- * falls back to an Open Graph image, and a link that 404s is worse than a plain one. Rather
- * than commit two opaque binaries nobody can edit, the shapes are drawn here in a few lines
- * of pixel maths and a minimal PNG encoder, so a designer can replace the real files later
- * and a developer can regenerate them with `npm run assets`.
+ * This is one image now: the Open Graph card `seo.js` falls back to, and a link that
+ * 404s is worse than a plain one. Rather than commit an opaque binary nobody can edit,
+ * the shapes are drawn here in a few lines of pixel maths and a minimal PNG encoder, so
+ * a designer can replace the real file later and a developer can regenerate it with
+ * `npm run assets`.
+ *
+ * The home-screen icon used to be generated here too. It is not any more: `public/logo.jpg`
+ * is the actual Deeva Achar badge, and a real mark beats a drawn placeholder at every size.
  *
  * No dependency: `zlib` is in Node, and an uncompressed-filter RGB PNG is about thirty lines.
  */
 
 const OUT = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'public');
 
-const BRAND = [0x8f, 0x1d, 0x14]; // brand-700
-const BRAND_DARK = [0x64, 0x1c, 0x17]; // brand-900
-const MUSTARD = [0xe6, 0xc3, 0x4a]; // mustard-400
-const CREAM = [0xfa, 0xf7, 0xf2]; // cream-100
-const LEAF = [0x4a, 0x8a, 0x42]; // leaf-500
+// Sampled off the badge in public/logo.jpg, so a share card and the logo beside it read
+// as one brand rather than two.
+const OLIVE = [0x40, 0x59, 0x2c]; // the wordmark and the outer ring
+const BRICK = [0xa6, 0x40, 0x2a]; // the inner ring and the Devanagari
+const CREAM = [0xf7, 0xf2, 0xe6]; // the field inside the ring
+const MUSTARD = [0xe6, 0xc3, 0x4a]; // not a brand colour - this is what achar looks like
 
 // --- PNG encoding ------------------------------------------------------------
 
@@ -123,22 +127,8 @@ function cornerCut(x, y, cx, halfWidth, top, bottom, r) {
 
 // --- The images --------------------------------------------------------------
 
-/** 180x180 home-screen icon: one jar, filled to the shoulder. */
-function appleTouchIcon() {
-  const size = 180;
-  return png(size, size, (x, y) => {
-    const part = jar(x, y, 150, 90, 18);
-    if (part === 'lid') return CREAM;
-    if (part === 'body') {
-      // Fill line about a third down the body, so it looks like a jar with achar in it.
-      return y > 18 + 0.42 * 150 ? MUSTARD : CREAM;
-    }
-    return BRAND;
-  });
-}
-
 /**
- * 1200x630 Open Graph card: three jars on cream over a brand band. No lettering - a
+ * 1200x630 Open Graph card: three jars on cream over an olive band. No lettering - a
  * generated bitmap cannot set type well, and a wrong-looking word mark is worse than none.
  */
 function ogDefault() {
@@ -147,14 +137,14 @@ function ogDefault() {
   const bandTop = height - 96;
 
   return png(width, height, (x, y) => {
-    if (y >= bandTop) return BRAND;
+    if (y >= bandTop) return OLIVE;
 
     for (let index = 0; index < 3; index += 1) {
       const cx = 330 + index * 270;
       const part = jar(x, y, 300, cx, 130);
-      if (part === 'lid') return BRAND_DARK;
+      if (part === 'lid') return OLIVE;
       if (part === 'body') {
-        const fill = [MUSTARD, BRAND, LEAF][index];
+        const fill = [BRICK, MUSTARD, OLIVE][index];
         return y > 130 + 0.4 * 300 ? fill : [0xff, 0xff, 0xff];
       }
     }
@@ -164,6 +154,5 @@ function ogDefault() {
 }
 
 mkdirSync(OUT, { recursive: true });
-writeFileSync(resolve(OUT, 'apple-touch-icon.png'), appleTouchIcon());
 writeFileSync(resolve(OUT, 'og-default.png'), ogDefault());
-console.log('wrote apple-touch-icon.png and og-default.png to public/');
+console.log('wrote og-default.png to public/');

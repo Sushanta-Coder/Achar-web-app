@@ -24,7 +24,7 @@ export default function AuthCard({ title, description, children, footer, backTo 
             <span className="bg-brand-700 grid size-9 place-items-center rounded-xl text-white">
               <Icon name="flame" className="size-5" />
             </span>
-            <span className="font-display">Achar Ghar</span>
+            <span className="font-display">Deeva Achar</span>
           </Link>
 
           <h1 className="mt-5 text-2xl sm:text-3xl">{title}</h1>

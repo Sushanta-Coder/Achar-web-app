@@ -266,7 +266,7 @@ function ReviewCard({ review, onEdit, onRemove }) {
       {review.adminResponse ? (
         <div className="border-cream-300 bg-cream-100 mt-3 rounded-lg border p-3">
           <p className="text-ink-500 text-xs font-semibold tracking-wide uppercase">
-            Achar Ghar replied
+            Deeva Achar replied
           </p>
           <p className="text-ink-700 mt-1 text-sm">{review.adminResponse}</p>
         </div>

@@ -1,4 +1,4 @@
-# Render Blueprint — provisions the Achar Ghar API.
+# Render Blueprint — provisions the Deeva Achar API.
 #
 # Render reads this file when you create a Blueprint from the repo, so the build
 # command, start command and health check path come from version control instead of
@@ -74,7 +74,7 @@ services:
       - key: BREVO_API_KEY
         sync: false # the xkeysib- key, not the xsmtpsib- SMTP one
       - key: EMAIL_FROM
-        sync: false # Achar Ghar <you@example.com> — the address must be a verified sender in Brevo
+        sync: false # Deeva Achar <you@example.com> — the address must be a verified sender in Brevo
 
       # --- Used once, by the seed you run from your own machine (step 7). ---
       - key: SEED_ADMIN_EMAIL

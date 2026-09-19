@@ -94,7 +94,7 @@ export const register = asyncHandler(async (req, res) => {
 
   const csrfToken = issueSession(res, user);
   return sendCreated(res, {
-    message: 'Welcome to Achar Ghar',
+    message: 'Welcome to Deeva Achar',
     data: { user: publicUser(user), csrfToken },
   });
 });

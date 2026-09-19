@@ -62,7 +62,7 @@ export default function Footer() {
                 <Icon name="flame" className="size-5.5" />
               </span>
               <span className="font-display text-lg font-bold text-white">
-                {company.name ?? 'Achar Ghar'}
+                {company.name ?? 'Deeva Achar'}
               </span>
             </div>
 
@@ -142,7 +142,7 @@ export default function Footer() {
           </div>
 
           <p className="text-xs text-cream-400">
-            © {year} {company.name ?? 'Achar Ghar'}. Made in Nepal.
+            © {year} {company.name ?? 'Deeva Achar'}. Made in Nepal.
           </p>
         </div>
       </div>

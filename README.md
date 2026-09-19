@@ -1,4 +1,4 @@
-# Achar Ghar
+# Deeva Achar
 
 Production-ready MERN e-commerce platform for a Nepal-based pickle (achar) company. Fully responsive, SEO-optimised, with Khalti and eSewa payment integration and a complete admin dashboard.
 

@@ -16,14 +16,19 @@
  */
 
 const MANAGED = 'data-seo';
-const SITE_NAME = 'Achar Ghar';
+const SITE_NAME = 'Deeva Achar';
 const TITLE_SUFFIX = ` | ${SITE_NAME}`;
 const MAX_TITLE = 60;
 const MAX_DESCRIPTION = 160;
 
 const origin = () =>
   import.meta.env.VITE_SITE_URL?.replace(/\/$/, '') ||
-  (typeof window !== 'undefined' ? window.location.origin : 'https://acharghar.com.np');
+  // The last fallback only applies without a `window`, which this SPA never is. It names
+  // the deployment rather than a brand domain on purpose: a canonical pointing at a host
+  // nobody owns is worse than one pointing at an ugly URL that actually serves the site.
+  (typeof window !== 'undefined'
+    ? window.location.origin
+    : 'https://achar-web-appvercelapp.vercel.app');
 
 /** Removes every tag a previous page added, leaving index.html's own tags in place. */
 function clearManaged() {
@@ -78,8 +83,13 @@ export function applySeo({
 } = {}) {
   clearManaged();
 
+  // The suffix is skipped when the title already carries the brand. Site Settings ships a
+  // `defaultTitle` of "Deeva Achar | Buy Authentic Nepali Pickle Online" and the home page
+  // passes it through verbatim, so appending unconditionally printed the name twice in the
+  // tab and in the search result - short enough to clear the length guard, which is why it
+  // went unnoticed.
   const fullTitle = title
-    ? title.length + TITLE_SUFFIX.length > MAX_TITLE + 12
+    ? title.includes(SITE_NAME) || title.length + TITLE_SUFFIX.length > MAX_TITLE + 12
       ? title
       : `${title}${TITLE_SUFFIX}`
     : `${SITE_NAME} - Homemade Nepali Achar, Delivered Fresh`;

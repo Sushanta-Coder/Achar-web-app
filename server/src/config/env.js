@@ -125,7 +125,7 @@ export const env = {
     secure: bool(process.env.EMAIL_SECURE, int(process.env.EMAIL_PORT, 587) === 465),
     user: process.env.EMAIL_USER || '',
     password: process.env.EMAIL_PASSWORD || '',
-    from: process.env.EMAIL_FROM || 'Achar Ghar <no-reply@acharghar.com.np>',
+    from: process.env.EMAIL_FROM || 'Deeva Achar <no-reply@deevaachar.com.np>',
     get enabled() {
       return this.provider === 'brevo'
         ? Boolean(this.brevoApiKey)
@@ -134,9 +134,9 @@ export const env = {
   },
 
   seed: {
-    adminEmail: process.env.SEED_ADMIN_EMAIL || 'admin@acharghar.com.np',
+    adminEmail: process.env.SEED_ADMIN_EMAIL || 'admin@deevaachar.com.np',
     adminPassword: process.env.SEED_ADMIN_PASSWORD || '',
-    adminName: process.env.SEED_ADMIN_NAME || 'Achar Ghar Admin',
+    adminName: process.env.SEED_ADMIN_NAME || 'Deeva Achar Admin',
     /**
      * Shared password for the demo customer accounts. There is no default and the
      * seed refuses to create them in production, so a live database can never end up

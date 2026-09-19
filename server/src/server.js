@@ -59,7 +59,7 @@ async function start() {
 
   await new Promise((resolve) => server.listen(env.port, resolve));
 
-  logger.info(`Achar Ghar API listening on port ${env.port} [${env.nodeEnv}]`);
+  logger.info(`Deeva Achar API listening on port ${env.port} [${env.nodeEnv}]`);
   logger.info(`Storefront origin: ${env.clientUrl}`);
   if (!env.khalti.secretKey) logger.warn('KHALTI_SECRET_KEY is not set - Khalti checkout is disabled');
   /**

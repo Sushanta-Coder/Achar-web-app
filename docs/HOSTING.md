@@ -1,4 +1,4 @@
-# Hosting Achar Ghar for free (with a real database)
+# Hosting Deeva Achar for free (with a real database)
 
 A complete free-tier deployment: **Vercel** (storefront) + **Render** (API) + **MongoDB Atlas** (database) + **Cloudinary** (product photos). No credit card is required for any of the four.
 
@@ -220,7 +220,7 @@ This one matters more than it looks. `verifyOrigin` in [server/src/middleware/cs
 Adding a custom domain later? Add it alongside, comma-separated:
 
 ```bash
-CORS_ORIGINS=https://acharghar.com.np,https://www.acharghar.com.np
+CORS_ORIGINS=https://deevaachar.com.np,https://www.deevaachar.com.np
 ```
 
 ---
@@ -306,8 +306,8 @@ Their free tier covers 300 emails a day.
    you.
 
    Your own Gmail works and is the quickest way to launch. Customers will see the order
-   arrive from that address. Once you own `acharghar.com.np` you can verify the whole
-   domain under the **Domains** tab and send from `orders@acharghar.com.np` instead,
+   arrive from that address. Once you own `deevaachar.com.np` you can verify the whole
+   domain under the **Domains** tab and send from `orders@deevaachar.com.np` instead,
    which looks considerably more like a shop and less like a person.
 
 3. **Create an API key** at **SMTP & API → API keys → Generate a new API key**. Copy it
@@ -318,7 +318,7 @@ Their free tier covers 300 emails a day.
 
    ```bash
    BREVO_API_KEY=xkeysib-...
-   EMAIL_FROM=Achar Ghar <the-address-you-verified@gmail.com>
+   EMAIL_FROM=Deeva Achar <the-address-you-verified@gmail.com>
    ```
 
    `EMAIL_FROM` must be the address from step 2, or Brevo rejects the send. No other

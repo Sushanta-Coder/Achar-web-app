@@ -42,7 +42,7 @@ const META = {
   },
   terms: {
     title: 'Terms of service',
-    lead: 'The agreement between you and Achar Ghar when you place an order.',
+    lead: 'The agreement between you and Deeva Achar when you place an order.',
   },
 };
 
@@ -333,7 +333,7 @@ function Fallback({ slug, company, threshold }) {
     <div className="rich-text">
       <h2>Who you are dealing with</h2>
       <p>
-        {company.legalName || company.name || 'Achar Ghar'}, registered in Nepal and operating
+        {company.legalName || company.name || 'Deeva Achar'}, registered in Nepal and operating
         the site you are reading. Placing an order means you accept these terms.
       </p>
       <h2>Orders</h2>

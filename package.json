@@ -2,7 +2,7 @@
   "name": "achar-ghar",
   "private": true,
   "version": "1.0.0",
-  "description": "Achar Ghar - production-ready MERN e-commerce platform for a Nepal-based pickle (achar) company",
+  "description": "Deeva Achar - production-ready MERN e-commerce platform for a Nepal-based pickle (achar) company",
   "type": "module",
   "engines": {
     "node": ">=20.0.0"

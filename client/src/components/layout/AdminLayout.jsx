@@ -118,7 +118,7 @@ export default function AdminLayout() {
           >
             <Icon name="menu" />
           </button>
-          <span className="font-display text-ink-900 font-bold">Achar Ghar admin</span>
+          <span className="font-display text-ink-900 font-bold">Deeva Achar admin</span>
           <Link to="/" className="btn-ghost btn-sm ml-auto" title="View storefront">
             <Icon name="external" className="size-4" />
           </Link>
@@ -142,7 +142,7 @@ function SidebarContent({ isAdmin, user, onSignOut, onClose }) {
           <Icon name="flame" className="size-5" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-bold text-white">Achar Ghar</p>
+          <p className="truncate text-sm font-bold text-white">Deeva Achar</p>
           <p className="text-[0.6875rem] text-cream-400">Admin dashboard</p>
         </div>
         {onClose ? (

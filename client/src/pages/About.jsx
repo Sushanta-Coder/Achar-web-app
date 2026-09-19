@@ -20,7 +20,7 @@ import { breadcrumbJsonLd } from '../lib/seo';
 export default function About() {
   const { settings } = useSettings();
   const company = settings.company ?? {};
-  const name = company.name || 'Achar Ghar';
+  const name = company.name || 'Deeva Achar';
 
   useSeo({
     title: `About ${name}`,
@@ -33,7 +33,11 @@ export default function About() {
         name: company.legalName || name,
         alternateName: company.nameNp || undefined,
         url: window.location.origin,
-        logo: company.logoUrl || undefined,
+        // Falls back to the badge that ships with the site. schema.org wants an absolute
+        // URL, and this is the one field Google surfaces directly in a knowledge panel -
+        // leaving it undefined because nobody has pasted a Cloudinary link into Settings
+        // yet means the panel shows no mark at all.
+        logo: company.logoUrl || `${window.location.origin}/logo.jpg`,
         email: company.email || undefined,
         telephone: company.phone || undefined,
         address: company.address

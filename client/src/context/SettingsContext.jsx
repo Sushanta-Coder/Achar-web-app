@@ -23,8 +23,8 @@ const SettingsContext = createContext(null);
 */
 const FALLBACK = {
   company: {
-    name: 'Achar Ghar',
-    tagline: 'Homemade Nepali achar, delivered fresh',
+    name: 'Deeva Achar',
+    tagline: 'Tradition · Taste · Trust',
     phone: '',
     email: '',
     supportEmail: '',

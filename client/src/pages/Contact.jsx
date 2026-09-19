@@ -37,7 +37,7 @@ export default function Contact() {
   useSeo({
     title: 'Contact us',
     description:
-      'Talk to Achar Ghar about an order, a wholesale enquiry, or anything you cannot find an answer to. Phone, WhatsApp, email and our address in Lalitpur.',
+      'Talk to Deeva Achar about an order, a wholesale enquiry, or anything you cannot find an answer to. Phone, WhatsApp, email and our address in Lalitpur.',
     canonical: '/contact',
     structuredData: breadcrumbJsonLd([
       { name: 'Home', url: '/' },

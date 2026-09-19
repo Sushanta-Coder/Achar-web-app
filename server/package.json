@@ -2,7 +2,7 @@
   "name": "@achar-ghar/server",
   "private": true,
   "version": "1.0.0",
-  "description": "Achar Ghar REST API - Express + MongoDB",
+  "description": "Deeva Achar REST API - Express + MongoDB",
   "type": "module",
   "main": "src/server.js",
   "engines": {

@@ -38,17 +38,19 @@ const siteSettingsSchema = new mongoose.Schema(
     key: { type: String, default: 'default', unique: true, immutable: true },
 
     company: {
-      name: { type: String, default: 'Achar Ghar' },
-      nameNp: { type: String, default: 'अचार घर' },
-      tagline: { type: String, default: 'Authentic Nepali Pickles, Made With Love' },
-      taglineNp: { type: String, default: 'प्रामाणिक नेपाली अचार, मायाले बनाइएको' },
-      legalName: { type: String, default: 'Achar Ghar Pvt. Ltd.' },
+      name: { type: String, default: 'Deeva Achar' },
+      nameNp: { type: String, default: 'दीवा अचार' },
+      // Both taglines are lifted straight off the badge: the Devanagari one is the line
+      // under the wordmark, the English one is the three words around the bottom rim.
+      tagline: { type: String, default: 'Tradition · Taste · Trust' },
+      taglineNp: { type: String, default: 'लुकेको स्वाद' },
+      legalName: { type: String, default: 'Deeva Achar Pvt. Ltd.' },
       panNumber: { type: String, default: '' },
       logoUrl: { type: String, default: '' },
       faviconUrl: { type: String, default: '' },
       // NAP - kept identical everywhere for local SEO consistency.
-      email: { type: String, default: 'hello@acharghar.com.np' },
-      supportEmail: { type: String, default: 'support@acharghar.com.np' },
+      email: { type: String, default: 'hello@deevaachar.com.np' },
+      supportEmail: { type: String, default: 'support@deevaachar.com.np' },
       phone: { type: String, default: '9801234567' },
       whatsapp: { type: String, default: '9801234567' },
       landline: { type: String, default: '01-4001234' },
@@ -126,8 +128,8 @@ const siteSettingsSchema = new mongoose.Schema(
     },
 
     seo: {
-      defaultTitle: { type: String, default: 'Achar Ghar | Buy Authentic Nepali Pickle Online' },
-      titleTemplate: { type: String, default: '%s | Achar Ghar' },
+      defaultTitle: { type: String, default: 'Deeva Achar | Buy Authentic Nepali Pickle Online' },
+      titleTemplate: { type: String, default: '%s | Deeva Achar' },
       defaultDescription: {
         type: String,
         default:

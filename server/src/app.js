@@ -175,7 +175,7 @@ app.get('/robots.txt', seo.robots);
 /** Friendly root, so hitting the API domain in a browser is not a bare 404. */
 app.get('/', (_req, res) =>
   res.json({
-    name: 'Achar Ghar API',
+    name: 'Deeva Achar API',
     version: '1.0.0',
     docs: `${env.clientUrl}`,
     health: '/api/health',

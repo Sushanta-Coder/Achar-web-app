@@ -1,17 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Achar Ghar">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Deeva Achar">
   <!--
-    The jar motif, drawn at favicon size rather than scaled down from a logo: at 16px a
-    detailed mark turns to mush, so the shapes here are deliberately few and thick.
-    Colours are the brand tokens from index.css.
+    The jar motif, drawn at favicon size rather than scaled down from the logo: the badge
+    in /logo.jpg carries a pot, a mango, a chilli, a wordmark and two lines of Devanagari,
+    and at 16px all of that turns to mush. So the shapes here are deliberately few and
+    thick, and only the colours are borrowed - the olive and brick of the badge, so the tab
+    icon and the header mark read as the same brand.
   -->
-  <rect width="64" height="64" rx="12" fill="#8f1d14" />
-  <rect x="24" y="10" width="16" height="6" rx="2" fill="#faf7f2" />
+  <rect width="64" height="64" rx="12" fill="#40592c" />
+  <rect x="24" y="10" width="16" height="6" rx="2" fill="#f7f2e6" />
   <path
     d="M27 16h10v5l4 4v20a5 5 0 0 1-5 5H28a5 5 0 0 1-5-5V25l4-4z"
-    fill="#faf7f2"
+    fill="#f7f2e6"
   />
   <path
     d="M23 30h18v15a5 5 0 0 1-5 5H28a5 5 0 0 1-5-5z"
-    fill="#e6c34a"
+    fill="#a6402a"
   />
 </svg>

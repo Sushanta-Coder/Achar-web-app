@@ -35,7 +35,7 @@ function getTransporter() {
 
 /**
  * Splits `EMAIL_FROM` into the `{name, email}` pair Brevo wants. Accepts both
- * `Achar Ghar <hi@example.com>` and a bare `hi@example.com`.
+ * `Deeva Achar <hi@example.com>` and a bare `hi@example.com`.
  */
 export function parseAddress(value = '') {
   const match = String(value).match(/^\s*(.*?)\s*<\s*([^>]+?)\s*>\s*$/);

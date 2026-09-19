@@ -32,7 +32,7 @@ export default function Login() {
 
   useSeo({
     title: 'Sign in',
-    description: 'Sign in to your Achar Ghar account to track orders and check out faster.',
+    description: 'Sign in to your Deeva Achar account to track orders and check out faster.',
     canonical: '/login',
     noIndex: true,
   });

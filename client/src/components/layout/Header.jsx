@@ -41,6 +41,11 @@ export default function Header() {
   const [term, setTerm] = useState('');
   const menuRef = useRef(null);
 
+  // Settings arrive from the API a beat after first paint, so the literal is what the
+  // very first frame shows. It is the brand name, not a placeholder - if it ever renders
+  // it should already be right.
+  const brandName = settings.company?.name ?? 'Deeva Achar';
+
   // Any navigation closes everything - otherwise the drawer stays open over the new page.
   useEffect(() => {
     setDrawerOpen(false);
@@ -109,16 +114,32 @@ export default function Header() {
               <Icon name="menu" />
             </button>
 
-            <Link to="/" className="flex shrink-0 items-center gap-2.5" aria-label="Achar Ghar home">
-              <span className="bg-brand-700 grid size-10 place-items-center rounded-lg text-white shadow-sm">
-                <Icon name="flame" className="size-5.5" />
+            <Link
+              to="/"
+              className="flex shrink-0 items-center gap-2.5"
+              aria-label={`${brandName} home`}
+            >
+              {/*
+                The badge is a round mark printed on a square white field. Clipping it to a
+                circle and letting it overflow the frame crops that margin off, so the green
+                ring meets the edge of the container - otherwise the mark reads as a white
+                tile floating on the cream header, which is the one thing a logo must not do.
+              */}
+              <span className="ring-ink-900/5 grid size-10 shrink-0 place-items-center overflow-hidden rounded-full bg-white shadow-sm ring-1">
+                <img
+                  src="/logo.jpg"
+                  alt=""
+                  width="40"
+                  height="40"
+                  className="size-full scale-[1.18] object-cover"
+                />
               </span>
               <span className="hidden sm:block">
                 <span className="text-ink-900 font-display block text-lg leading-tight font-bold">
-                  {settings.company?.name ?? 'Achar Ghar'}
+                  {brandName}
                 </span>
                 <span className="text-ink-400 block text-[0.6875rem] leading-tight">
-                  {locale === 'np' ? 'घरैको स्वादिष्ट अचार' : 'Homemade Nepali achar'}
+                  {locale === 'np' ? 'लुकेको स्वाद' : 'Tradition · Taste · Trust'}
                 </span>
               </span>
             </Link>

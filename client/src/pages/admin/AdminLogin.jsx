@@ -54,7 +54,7 @@ export default function AdminLogin() {
           <span className="bg-brand-700 mb-3 grid size-12 place-items-center rounded-xl text-white">
             <Icon name="flame" className="size-6" />
           </span>
-          <h1 className="font-display text-xl font-bold text-white">Achar Ghar admin</h1>
+          <h1 className="font-display text-xl font-bold text-white">Deeva Achar admin</h1>
           <p className="mt-1 text-sm text-cream-400">Sign in to manage the shop</p>
         </div>
 

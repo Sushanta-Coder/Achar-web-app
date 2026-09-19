@@ -2,7 +2,7 @@
   "name": "@achar-ghar/client",
   "private": true,
   "version": "1.0.0",
-  "description": "Achar Ghar storefront + admin dashboard - React + Vite + Tailwind",
+  "description": "Deeva Achar storefront + admin dashboard - React + Vite + Tailwind",
   "type": "module",
   "scripts": {
     "dev": "vite",
