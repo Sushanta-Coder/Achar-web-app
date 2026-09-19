@@ -4,7 +4,7 @@ import { ErrorState } from '../../components/ui/EmptyState';
 import Spinner, { PageLoader } from '../../components/ui/Spinner';
 import { PageHeader, Panel, TabBar } from '../../components/admin/AdminPage';
 import { useFetch } from '../../hooks/useApi';
-import { patch } from '../../lib/apiClient';
+import { patch, post } from '../../lib/apiClient';
 import { useToast } from '../../context/ToastContext';
 import useSeo from '../../hooks/useSeo';
 
@@ -775,6 +775,7 @@ function PaymentsSection({ settings, integrations, onSave }) {
             label="Email"
             ok={integrations.emailConfigured}
             detail={integrations.emailConfigured ? 'Order emails will send' : 'Order emails are logged, not sent'}
+            action={<TestEmailButton enabled={integrations.emailConfigured} />}
           />
         </dl>
       </Panel>
@@ -850,20 +851,69 @@ function PaymentsSection({ settings, integrations, onSave }) {
   );
 }
 
-function ConfigRow({ label, ok, detail }) {
+function ConfigRow({ label, ok, detail, action }) {
   return (
     <div className="border-cream-300 flex items-start gap-2 rounded-lg border px-3 py-2">
       <Icon
         name={ok ? 'checkCircle' : 'alert'}
         className={`mt-0.5 size-4 shrink-0 ${ok ? 'text-leaf-600' : 'text-mustard-600'}`}
       />
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <dt className="text-sm font-medium">{label}</dt>
         <dd className="text-ink-400 truncate text-xs">
           {ok ? detail || 'Configured' : 'Not configured'}
         </dd>
       </div>
+      {action}
     </div>
+  );
+}
+
+/**
+ * Proves the mail provider works without placing an order.
+ *
+ * Worth a button because the alternative is guesswork: order confirmations are sent
+ * fire-and-forget so that a broken provider cannot fail a checkout, which also means a
+ * broken provider looks exactly like a working one from this screen. The boolean above
+ * only says a key is present - not that it is valid, nor that the sender address has
+ * been verified, which is the failure that actually happens.
+ *
+ * The server's message is shown verbatim on both paths; it names what the provider
+ * objected to, and a generic "could not send" would put the admin straight back to
+ * guessing.
+ */
+function TestEmailButton({ enabled }) {
+  const toast = useToast();
+  const [busy, setBusy] = useState(false);
+
+  const send = async () => {
+    setBusy(true);
+    try {
+      // `request` unwraps to `data`, so the server's own headline is not available here -
+      // hence the wording is repeated rather than echoed. The error path *does* get the
+      // server's message, which is the one that has to be exact.
+      const result = await post('/settings/admin/test-email');
+      toast.success(
+        `Test email sent to ${result?.to ?? 'your address'}. Check spam if it is not in the inbox.`
+      );
+    } catch (error) {
+      toast.error(error?.normalised?.message ?? 'Could not send the test email');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={send}
+      disabled={busy || !enabled}
+      title={enabled ? 'Sends one email to your own address' : 'Configure a provider first'}
+      className="btn-outline btn-sm shrink-0"
+    >
+      {busy ? <Spinner className="size-4" /> : null}
+      Send test
+    </button>
   );
 }
 

@@ -66,4 +66,13 @@ export const lookupLimiter = rateLimit({ ...base, windowMs: 15 * 60 * 1000, max:
 /** Search and analytics beacons are chatty but cheap. */
 export const readHeavyLimiter = rateLimit({ ...base, windowMs: 60 * 1000, max: 120 });
 
+/**
+ * The admin "send a test email" button. Admin-only already, so this is not about
+ * abuse but about quota: Brevo's free tier allows 300 messages a day and order
+ * confirmations come out of the same allowance. Someone clicking a button that
+ * appears to do nothing (because the mail is sitting in spam) should not be able to
+ * spend the day's confirmations finding that out.
+ */
+export const testEmailLimiter = rateLimit({ ...base, windowMs: 60 * 60 * 1000, max: 5 });
+
 export default apiLimiter;

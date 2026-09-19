@@ -9,6 +9,8 @@ import {
 } from '../services/settingsService.js';
 import { availableGateways } from '../services/payments/PaymentService.js';
 import { getDeliveryTable } from '../services/deliveryService.js';
+import { verifyTransport } from '../services/emailService.js';
+import { notifyTestEmail } from '../services/notificationService.js';
 import { PROVINCES, DISTRICTS } from '../utils/nepal.js';
 import { sanitizeHtml } from '../utils/sanitize.js';
 import {
@@ -199,6 +201,49 @@ export const adminSetMaintenance = asyncHandler(async (req, res) => {
   });
 });
 
+/**
+ * Sends one real email to the admin making the request.
+ *
+ * Order confirmations are fire-and-forget by design: `notificationService.dispatch`
+ * swallows every failure so a dead mail provider can never fail a checkout. That is
+ * right for the customer and useless for the shop owner, who otherwise learns the
+ * provider was misconfigured only from an order that quietly never got acknowledged -
+ * and has no way to tell "the key is wrong" from "the customer deleted it".
+ *
+ * So this one path is allowed to report the failure verbatim. It is admin-only, and
+ * Brevo's rejections are exactly the text an admin needs: an unverified sender and a
+ * revoked key look identical from the outside and read quite differently here.
+ *
+ * Always to `req.user.email`, never to an address in the body - an authenticated
+ * endpoint that mails arbitrary strangers on the shop's verified domain is a spam
+ * relay, and the admin is the only person who needs to watch this arrive.
+ */
+export const adminSendTestEmail = asyncHandler(async (req, res) => {
+  if (!env.email.enabled) {
+    throw new ApiError(
+      400,
+      env.email.provider === 'brevo'
+        ? 'Email is not configured. Set BREVO_API_KEY in the server environment and restart the API.'
+        : 'Email is not configured. Set BREVO_API_KEY (recommended) or EMAIL_HOST, EMAIL_USER and EMAIL_PASSWORD, then restart the API.'
+    );
+  }
+
+  const reachable = await verifyTransport();
+  if (!reachable.ok) {
+    throw new ApiError(502, `The email provider rejected the credentials: ${reachable.reason}`);
+  }
+
+  const result = await notifyTestEmail(req.user);
+  if (!result.sent) {
+    throw new ApiError(502, `The provider accepted the credentials but refused the message: ${result.error}`);
+  }
+
+  return sendSuccess(res, {
+    message: `Test email sent to ${req.user.email}. If it does not arrive within a minute, check the spam folder.`,
+    data: { to: req.user.email, provider: env.email.provider, messageId: result.messageId },
+  });
+});
+
 export default {
   publicSettings,
   referenceData,
@@ -209,4 +254,5 @@ export default {
   adminUpdateSeo,
   adminUpdateHomepage,
   adminSetMaintenance,
+  adminSendTestEmail,
 };

@@ -175,6 +175,28 @@ export async function notifyPasswordReset(user, resetToken) {
   });
 }
 
+/**
+ * Proof that the mail provider works, sent to the admin who asked for it.
+ *
+ * Deliberately shaped like a real notification rather than a bare "test": it goes
+ * through the same shell, the same sender and the same transport as an order
+ * confirmation, so arriving in the inbox rather than in spam means something.
+ */
+export async function notifyTestEmail(admin) {
+  const settings = await getSettings();
+  return dispatch({
+    to: admin.email,
+    subject: `Email is working - ${settings.company.name}`,
+    html: shell(
+      settings,
+      'Email is working',
+      `<h1 style="font-size:20px;margin:0 0 12px;">Email is working ✅</h1>
+       <p style="line-height:1.7;color:#4a423b;">You asked for this from Settings. It went out on the same sender and transport your customers' order confirmations use, so if it reached your inbox - and not your spam folder - theirs will too.</p>
+       <p style="font-size:13px;color:#6b625a;">Sent ${escape(new Date().toUTCString())} to ${escape(admin.email)}.</p>`
+    ),
+  });
+}
+
 export async function notifyContactReceived(message) {
   const settings = await getSettings();
   return dispatch({
@@ -209,4 +231,5 @@ export default {
   notifyOrderStatus,
   notifyPasswordReset,
   notifyContactReceived,
+  notifyTestEmail,
 };

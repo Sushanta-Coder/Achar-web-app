@@ -2,6 +2,7 @@ import { Router } from 'express';
 import * as settings from '../controllers/settingsController.js';
 import { requireAuth, requireAdmin, requireStaff } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
+import { testEmailLimiter } from '../middleware/rateLimiter.js';
 import {
   updateSettingsSchema,
   seoSettingsSchema,
@@ -59,5 +60,12 @@ router.patch(
   validate({ body: maintenanceSchema }),
   settings.adminSetMaintenance
 );
+
+/**
+ * Sends one real email to the requesting admin. A POST rather than a GET because it
+ * has an outward effect, and rate limited because it spends the same daily provider
+ * quota the order confirmations do.
+ */
+router.post('/admin/test-email', testEmailLimiter, settings.adminSendTestEmail);
 
 export default router;
