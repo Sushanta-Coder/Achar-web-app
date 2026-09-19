@@ -15,6 +15,18 @@ import { fileURLToPath } from 'node:url';
  * The home-screen icon used to be generated here too. It is not any more: `public/logo.jpg`
  * is the actual Deeva Achar badge, and a real mark beats a drawn placeholder at every size.
  *
+ * So `favicon-32.png`, `favicon-64.png` and `apple-touch-icon.png` are NOT produced by this
+ * script and running it will not rebuild them. They are `logo.jpg` cropped to its outer ring
+ * (the same 1.18 crop the header mark uses) and resampled, which needs a JPEG decoder and an
+ * image resampler this script deliberately does not carry. Regenerate them with any image
+ * editor, or with ImageMagick:
+ *
+ *   magick public/logo.jpg -gravity center -crop 1063x1063+0+0 +repage \
+ *     -resize 64x64 \( +clone -alpha extract -threshold 0 \) public/favicon-64.png
+ *
+ * The encoder below writes RGB only (PNG colour type 2) and has no alpha channel, so it
+ * could not round-corner them anyway - the icons need transparency outside the circle.
+ *
  * No dependency: `zlib` is in Node, and an uncompressed-filter RGB PNG is about thirty lines.
  */
 

@@ -32,8 +32,20 @@
     />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/logo.jpg" />
+    <!--
+      The tab icon is the Deeva Achar badge itself, cropped to its outer ring and
+      resampled - not a simplified redraw of it. Two sizes because browsers pick the
+      nearest and then scale: 32 covers the 16px tab and the 32px bookmark bar, 64
+      covers a 2x tab and Windows' taskbar. The 180 is what iOS puts on a home screen,
+      and is a real icon now rather than the 1254px logo.jpg the phone had to downscale
+      on every visit.
+
+      These three are crops of public/logo.jpg, so they are the only images in public/
+      that `npm run assets` cannot regenerate - see scripts/make-assets.mjs.
+    -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="64x64" href="/favicon-64.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
 
     <!--
