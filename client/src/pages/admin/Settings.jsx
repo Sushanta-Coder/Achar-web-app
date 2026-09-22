@@ -90,7 +90,19 @@ export default function AdminSettings() {
             toast.success(next ? 'The shop is now in maintenance mode' : 'The shop is open again');
             refetch();
           } catch (requestError) {
-            toast.error(requestError?.normalised?.message ?? 'Could not change maintenance mode');
+            /**
+             * A 503 here is the maintenance gate refusing the one request that ends
+             * maintenance - an API old enough to predate the fix for that. Showing its
+             * body verbatim told the admin "please try placing your order again
+             * shortly", which is copy written for a customer and reads, to the person
+             * holding the switch, as if the button had silently done nothing.
+             */
+            const { status, message } = requestError?.normalised ?? {};
+            toast.error(
+              status === 503
+                ? 'This API build cannot switch maintenance off - deploy the latest commit on Render, then try again.'
+                : (message ?? 'Could not change maintenance mode')
+            );
           }
         }}
       />
