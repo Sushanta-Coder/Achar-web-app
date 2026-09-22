@@ -154,9 +154,12 @@ app.use(csrfProtection);
 
 app.use('/api', apiLimiter);
 /**
- * After the limiter, so a flood cannot force a settings read per request, and after
- * auth is *available* but before the routers - the middleware checks `req.user?.role`
- * defensively rather than assuming it is populated.
+ * After the limiter, so a flood cannot force a settings read per request. Note that
+ * auth has *not* run at this point and cannot: the routers mounted below own it, per
+ * route. This used to claim otherwise, and the middleware's staff exemption was
+ * written to trust `req.user` - which is never set this early, so the exemption was
+ * dead and an admin could not switch maintenance back off. It now resolves the
+ * session itself when it needs one.
  */
 app.use(maintenanceMode);
 

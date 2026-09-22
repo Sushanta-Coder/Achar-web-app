@@ -315,4 +315,68 @@ describe('uploads refuse files that are not images', () => {
   });
 });
 
+describe('maintenance mode can always be switched back off', () => {
+  /**
+   * The regression this exists for: `maintenanceMode` is mounted before the routers,
+   * so `req.user` was never populated when it checked for a staff role. The exemption
+   * it documents could not fire, and the PATCH that ends a maintenance window was
+   * refused with the same 503 as a customer's order - leaving the only way out an
+   * edit to the production database.
+   *
+   * Both halves matter. Asserting only that the admin gets back in would pass if the
+   * flag stopped closing the shop at all.
+   */
+  const setMaintenance = async (admin, on) =>
+    write(admin.agent, admin.csrf, 'patch', '/api/settings/admin/maintenance').send({
+      maintenanceMode: on,
+    });
+
+  it('closes the shop to customers but never to the admin holding the switch', async () => {
+    const admin = await signIn(config.seed.adminEmail, config.seed.adminPassword);
+    expect((await setMaintenance(admin, true)).status).toBe(200);
+
+    try {
+      // A customer write is refused...
+      const listed = await request(app).get('/api/products?limit=1').expect(200);
+      const product = listed.body.data.products[0];
+      const quote = await request(app)
+        .post('/api/cart/quote')
+        .send({
+          items: [
+            {
+              productId: product._id,
+              variantId: product.variants[0]._id,
+              quantity: 1,
+            },
+          ],
+        });
+      expect(quote.status).toBe(503);
+
+      // ...while browsing stays open, which is the whole point of the design.
+      await request(app).get('/api/products?limit=1').expect(200);
+
+      // ...and the admin can still work, rather than being locked out of their own shop.
+      await admin.agent.get('/api/admin/dashboard').expect(200);
+    } finally {
+      // In `finally` so a failure above cannot leave the rest of the suite closed.
+      const reopened = await setMaintenance(admin, false);
+      expect(reopened.status).toBe(200);
+      expect(reopened.body.data.maintenanceMode).toBe(false);
+    }
+  });
+
+  it('accepts an order again once the shop reopens', async () => {
+    const listed = await request(app).get('/api/products?limit=1').expect(200);
+    const product = listed.body.data.products[0];
+    const quote = await request(app)
+      .post('/api/cart/quote')
+      .send({
+        items: [
+          { productId: product._id, variantId: product.variants[0]._id, quantity: 1 },
+        ],
+      });
+    expect(quote.status).toBe(200);
+  });
+});
+
 export { signIn, write };

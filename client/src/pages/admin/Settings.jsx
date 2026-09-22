@@ -230,7 +230,13 @@ function MaintenanceBanner({ active, onToggle }) {
         }
       >
         {busy ? <Spinner className="size-4" /> : null}
-        {active ? 'Open the shop' : 'Close for maintenance'}
+        {/*
+          Named for what it does to the switch, not for the outcome. "Open the shop"
+          sat next to a link-coloured storefront preview and read as "take me to the
+          shop", so the one control that ends a maintenance window looked like
+          navigation - which is a bad thing to be unsure about with the shop closed.
+        */}
+        {active ? 'Turn maintenance off' : 'Close for maintenance'}
       </button>
     </div>
   );
